@@ -125,15 +125,8 @@ def velocAvr(dat, mtor):
 
 whatToDo = 'processTauAndColDensFromFile'
 
-#locdirList = [ 'SolovievSep201615_256x8x256_L0.n10e10/']
-#locdirList = [ 'runDec201608_256x8x256_L0.5n10e8/']
-# put_out= '/Users/dora/Documents/TEX/torus9/'
-# locdir = locdirList[0]
-# dirFileToReadBase = os.getcwd()
-# dataDir = '/DATA/'
 
 
-put_out= '/local/data/atorus1/dora/PROJECTS/SCRIPTS/T9'
 
 
 dirFileToReadBase = ''
@@ -146,6 +139,7 @@ dat =ath.athDataModel()
 
 if socket.gethostname()=='atorus':
     locdirList = ['/local/data/atorus1/dora/PROJECTS/AthenaWind/']
+
     locdir = locdirList[0]   
     dirToRead=locdir+'tst/cylindrical/'
     print(dirToRead)
@@ -153,9 +147,20 @@ if socket.gethostname()=='atorus':
    
     dirToRead=locdir+'bin/'
     print(dirToRead)
+    
+    put_out= '/local/data/atorus1/dora/PROJECTS/SCRIPTS/T9'
+
 else:
-    dirToRead = dirFileToReadBase + dataDir+locdirList[0]
-    dat.loadSimulationParam(dirToRead + 'athinput.torus9_hydro_2D', print_res=True)
+     locdirList = [ 'SolovievSep201615_256x8x256_L0.n10e10/']
+     locdirList = [ 'runDec201608_256x8x256_L0.5n10e8/']
+     put_out= '/Users/dora/Documents/TEX/torus9/'
+     locdir = locdirList[0]
+     dirFileToReadBase = os.getcwd()
+     dataDir = '/DATA/'
+
+     dirToRead = dirFileToReadBase + dataDir+locdirList[0]
+     
+     dat.loadSimulationParam(dirToRead + 'athinput.torus9_hydro_2D', print_res=True)
 
 
 
@@ -180,6 +185,9 @@ mdotFromFile = False #True
 calcTorusMass = False
 
 calcMdot = True
+
+# calcMdot = False
+
 plotMdot = True
 
 
@@ -187,14 +195,17 @@ plotEkin = False
 plotAvrVel =False
 
 firstTime = 0
+fileToReadPrefix="mhdXwind"
 
 if(not mdotFromFile):
     for fileInDir in os.listdir(dirToRead):
-        if fileInDir.startswith("mhdXwind"):
+        if fileInDir.startswith(fileToReadPrefix) and  fileInDir.endswith("bin") :
             
-            fileToOpen = dirToRead + fileInDir                
-            dat.loadDataFromBinFiles(fileToOpen, dat, printDetail=False )                
-            print("file to open:", fileToOpen)
+            fileToOpen = dirToRead + fileInDir              
+            
+            print("file to open:", fileToOpen)  
+            dat.loadDataFromBinFiles(fileToOpen, dat, printDetail=False ) 
+                        
                         
             if (calcTorusMass): 
                 torMass= torusMass(dat)

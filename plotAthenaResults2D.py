@@ -27,7 +27,11 @@ pathToBin = '/Users/dora/WORK/ECLIPSE_SPACE/AthenaWind/bin/'
 pathToBin = "/Users/dora/WORK/ECLIPSE_SPACE/torus9/DATA/runSolDec201612_256x8x256_L0.5n10e10/"
 
 
+
 pathToBin ='/local/data/atorus1/dora/PROJECTS/AthenaWind/bin/'
+
+
+# pathToBin = '/Users/dora/WORK/ECLIPSE_SPACE/torus9/DATA/runDec201608_256x8x256_L0.5n10e8/'
 
 
 # pathToBin = '/Users/dora/WORK/ECLIPSE_SPACE/AthenaWind/bin/lowresDat/'
