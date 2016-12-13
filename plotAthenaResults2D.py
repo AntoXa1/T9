@@ -1,37 +1,15 @@
-import sys
+#!/Users/dora/anaconda3/bin/python3
+
+#!#!/Users/dora/Library/Enthought/Canopy_32bit/User/bin/python
+
+# import sys
+
 import numpy as nm
 from pylab import *
 from matplotlib import pyplot as plt
 import pprint
 
-class athDataModel:
-  
-  """ reads data from hdf file
-        fields: r, rth, dd, ee, u1,u2,u3"""
-        
-  def __init__(self):   
-    self.nx=None
-    self.nt=None
-    self.nz=None
-           
-    self.x=None
-    self.z=None
-    self.ph=None
-    
-    self.dd=None
-    self.etot=None    
-    
-    self.Mx=None
-    self.Mt=None
-    self.Mz=None
-    
-    self.Bx=None
-    self.Bt=None
-    self.Bz=None
-    self.nvar =0    
-    self.nscalars=0
-    self.ifselfg=0
-    self.ifpart=0
+import AthenaModel as ath
     
 method = 'GAS'   
 method = 'MHD' 
@@ -39,22 +17,26 @@ STREAM = True
 # STREAM = False
 
 pathToBin = '/Users/dora/WORK/ECLIPSE_SPACE/AthenaWind/bin/RES1/mhdwind1/'
-pathToBin = '/Users/dora/WORK/ECLIPSE_SPACE/AthenaWind/bin/'
+pathToBin = "/Users/dora/WORK/ECLIPSE_SPACE/torus9/DATA/SolovievSep201615_256x8x256_L0.n10e10/"
 
+pathToBin = '/Users/dora/WORK/ECLIPSE_SPACE/AthenaWind/bin/'
+pathToBin = "/Users/dora/WORK/ECLIPSE_SPACE/torus9/DATA/runSolDec201612_256x8x256_L0.5n10e10/"
+
+# pathToBin = '/Users/dora/WORK/ECLIPSE_SPACE/AthenaWind/bin/lowresDat/'
 # fileToOpen=pathToBin + 'HKDisk.0022.bin'
-fileToOpen=pathToBin + 'mhdXwind.0092.bin'  
+
+fileToOpen=pathToBin + 'mhdXwind.0156.bin'  
+
+# fileToOpen=pathToBin + 'HKDisk.0060.bin'
 
 try:
     file = open(fileToOpen, 'rb')
 except IOError:
-    print 'cannot open', fileToOpen
+    print('cannot open', fileToOpen)
     exit()
 
-# file.seek(0,2)
-# eof = file.tell()
-# file.seek(0,0)
 
-dat = athDataModel()
+dat = ath.athDataModel()
 
 #  READ COORDINATE SYSTEM INFORMATION
 coordsys = nm.fromfile(file, dtype=nm.int32,  count=1)[0]
@@ -87,7 +69,6 @@ if method == 'MHD':
 
 (X, Z) = meshgrid(dat.x,dat.z)
 
-
 offset= 2
 ist = offset;  ie = dat.nz-offset;
 jst = offset;      je =dat.nx-offset
@@ -116,24 +97,25 @@ mz = dat.Mz[ist:ie:stp, phToSHow, jst:je:stp]
 if method == 'MHD':
     Bx = dat.Bx[ist:ie:stp, phToSHow, jst:je:stp]    
     Bz = dat.Bz[ist:ie:stp, phToSHow, jst:je:stp]
-    print size(Bx), size(Bz)
+    print (size(Bx), size(Bz))
 
 # print(size(Bx,0),size(Bx,1)); exit()
 shape = (dat.nz,  dat.nt,  dat.nx)
 var1 = zeros(dat.nx, dat.nz)
 
-var1 = dat.Mt[ist:ie, phToSHow, jst:je]/dat.ro[ist:ie, phToSHow, jst:je]
+Vk= sqrt(1./ (dat.x[ist:ie]**2 +dat.z[jst:je] **2)    )
+var1 = dat.Mt[ist:ie, phToSHow, jst:je]/dat.ro[ist:ie, phToSHow, jst:je]/Vk
 
+
+# var1 =  (dat.Bt[ist:ie, phToSHow, jst:je])
 var1 =  (dat.ro[ist:ie, phToSHow, jst:je])
-var1 =  log10(var1)
-
-
-# var1 =  dat.Bt[ist:ie, phToSHow, jst:je]
+vatToShow2D =  log10(var1)
+# var1 =  (dat.Bt[ist:ie, phToSHow, jst:je]**2+dat.Bx[ist:ie, phToSHow, jst:je]**2+dat.Bz[ist:ie, phToSHow, jst:je]**2)
 
 # dat.Mt[ist:ie, phToSHow, jst:je]
 
 
-vatToShow2D=var1
+# vatToShow2D=log10(var1/dat.etot[ist:ie, phToSHow, jst:je])
 # vatToShow2D=dat.etot[ist:ie, phToSHow, jst:je]
 # vatToShow2D=mt
   
@@ -144,13 +126,16 @@ plt.colorbar()
 
 # im = plt.imshow( dat.Bz[ist:ie, phToSHow, jst:je]  , interpolation='bilinear',cmap=cm.jet, 
 #                 extent=[xmin, xmx, zmin, zmx] )    
-if method == 'MHD' and STREAM:
-    plt.streamplot(x1, x3, Bx, Bz, color='k',linewidth=2)
 
-qp1 = plt.quiver(x1, x3, mx/dat.ro[ist:ie, phToSHow, jst:je], mz/dat.ro[ist:ie, phToSHow, jst:je], width=0.008, scale=2,                            
-        pivot='mid', color='black',
-        units='x' , headwidth =5, headlength =7,
-        linewidths=(0.5,), edgecolors=('black'))
+
+if method == 'MHD' and STREAM:
+#     plt.streamplot(x1, x3, Bx, Bz, color='k',linewidth=2)
+    plt.streamplot(x1, x3, mx, mz, color='k',linewidth=2)
+
+#         qp1 = plt.quiver(x1, x3, mx/dat.ro[ist:ie, phToSHow, jst:je], mz/dat.ro[ist:ie, phToSHow, jst:je], width=0.008, scale=2,                            
+#         pivot='mid', color='black',
+#         units='x' , headwidth =5, headlength =7,
+#         linewidths=(0.5,), edgecolors=('black'))
 
 # qp1 = plt.quiver(x1, x3, Bx, Bz, width=0.008, scale=0.8,                            
 #         pivot='mid', color='black',
@@ -174,7 +159,7 @@ exit()
 
 
 
-if file.tell() != eof: print 'Error: Too few bytes read.'
+if file.tell() != eof: print ('Error: Too few bytes read.')
 
 
 
