@@ -1,6 +1,9 @@
-#!/Users/dora/anaconda3/bin/python3
+#!/local/data/atorus1/dora/Compilers/epd-7.3-1-rh5-x86_64(1)/bin/python
 
-#!#!/Users/dora/Library/Enthought/Canopy_32bit/User/bin/python
+
+##!/Users/dora/anaconda3/bin/python3
+
+##!#!/Users/dora/Library/Enthought/Canopy_32bit/User/bin/python
 
 # import sys
 
@@ -19,15 +22,20 @@ STREAM = True
 pathToBin = '/Users/dora/WORK/ECLIPSE_SPACE/AthenaWind/bin/RES1/mhdwind1/'
 pathToBin = "/Users/dora/WORK/ECLIPSE_SPACE/torus9/DATA/SolovievSep201615_256x8x256_L0.n10e10/"
 
+
 pathToBin = '/Users/dora/WORK/ECLIPSE_SPACE/AthenaWind/bin/'
 pathToBin = "/Users/dora/WORK/ECLIPSE_SPACE/torus9/DATA/runSolDec201612_256x8x256_L0.5n10e10/"
 
+
+pathToBin ='/local/data/atorus1/dora/PROJECTS/AthenaWind/bin/'
+
+
 # pathToBin = '/Users/dora/WORK/ECLIPSE_SPACE/AthenaWind/bin/lowresDat/'
-# fileToOpen=pathToBin + 'HKDisk.0022.bin'
+# fileToOpen=pathToBin + 'HKDisk.00228.bin'
 
-fileToOpen=pathToBin + 'mhdXwind.0156.bin'  
+fileToOpen=pathToBin + 'mhdXwind.0228.bin'  
 
-# fileToOpen=pathToBin + 'HKDisk.0060.bin'
+
 
 try:
     file = open(fileToOpen, 'rb')
@@ -130,12 +138,12 @@ plt.colorbar()
 
 if method == 'MHD' and STREAM:
 #     plt.streamplot(x1, x3, Bx, Bz, color='k',linewidth=2)
-    plt.streamplot(x1, x3, mx, mz, color='k',linewidth=2)
+#    plt.streamplot(x1, x3, mx, mz, color='k',linewidth=2)
 
-#         qp1 = plt.quiver(x1, x3, mx/dat.ro[ist:ie, phToSHow, jst:je], mz/dat.ro[ist:ie, phToSHow, jst:je], width=0.008, scale=2,                            
-#         pivot='mid', color='black',
-#         units='x' , headwidth =5, headlength =7,
-#         linewidths=(0.5,), edgecolors=('black'))
+         qp1 = plt.quiver(x1, x3, mx/dat.ro[ist:ie, phToSHow, jst:je], mz/dat.ro[ist:ie, phToSHow, jst:je], width=0.008, scale=10,                            
+         pivot='mid', color='black',
+         units='x' , headwidth =5, headlength =7,
+         linewidths=(0.5,), edgecolors=('black'))
 
 # qp1 = plt.quiver(x1, x3, Bx, Bz, width=0.008, scale=0.8,                            
 #         pivot='mid', color='black',
@@ -144,24 +152,17 @@ if method == 'MHD' and STREAM:
 
 
 show()
-exit()
+#exit()
 
                      
                      
-show()
+#show()
 
 # print ro.shape
-exit()
+#exit()
 
 
+#if file.tell() != eof: print ('Error: Too few bytes read.')
 
-
-
-
-
-if file.tell() != eof: print ('Error: Too few bytes read.')
-
-
-
-file.close()
-print("done")
+#file.close()
+#print("done")
