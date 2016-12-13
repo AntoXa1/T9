@@ -183,7 +183,7 @@ class athDataModel:
     dat.z = nm.fromfile(file,dtype=nm.float,count=dat.nz)
     
     shape = (dat.nz,  dat.nt,  dat.nx)
-#     print(shape)
+    print(shape)
     
     
     count = nm.prod(shape)

@@ -22,6 +22,8 @@ pathToBin = "/Users/dora/WORK/ECLIPSE_SPACE/torus9/DATA/SolovievSep201615_256x8x
 pathToBin = '/Users/dora/WORK/ECLIPSE_SPACE/AthenaWind/bin/'
 pathToBin = "/Users/dora/WORK/ECLIPSE_SPACE/torus9/DATA/runSolDec201612_256x8x256_L0.5n10e10/"
 
+# pathToBin = '/Users/dora/WORK/ECLIPSE_SPACE/torus9/DATA/runDec201608_256x8x256_L0.5n10e8/'
+
 # pathToBin = '/Users/dora/WORK/ECLIPSE_SPACE/AthenaWind/bin/lowresDat/'
 # fileToOpen=pathToBin + 'HKDisk.0022.bin'
 
