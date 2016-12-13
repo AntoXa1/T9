@@ -12,7 +12,7 @@ import pprint
 from scipy import trapz
 from matplotlib import pyplot as plt
 from physics1 import *
-
+import glob
 import socket
 
 import AthenaModel as ath
@@ -78,7 +78,9 @@ def torusMass(dat):
        
         
     
-    
+def getFilePostfixFromNum(num, needLen):
+    s1 = str(num)
+    return(s1.zfill(needLen))
        
 
 
@@ -189,7 +191,7 @@ calcMdot = True
 # calcMdot = False
 
 plotMdot = True
-
+ 
 
 plotEkin = False
 plotAvrVel =False
@@ -197,64 +199,70 @@ plotAvrVel =False
 firstTime = 0
 fileToReadPrefix="mhdXwind"
 
+
 if(not mdotFromFile):
-    for fileInDir in os.listdir(dirToRead):
-        if fileInDir.startswith(fileToReadPrefix) and  fileInDir.endswith("bin") :
-            
-            fileToOpen = dirToRead + fileInDir              
-            
-            print("file to open:", fileToOpen)  
-            dat.loadDataFromBinFiles(fileToOpen, dat, printDetail=False ) 
-                        
-                        
-            if (calcTorusMass): 
-                torMass= torusMass(dat)
-                print("mass/Msol= ", torMass/Msol)
-                exit()
     
-    #         print(dat.Nz, dat.Nx); exit()        
-            #ieq = int( round(dat.Nz/2., 0))
-            ieq = nm.argmin(abs(dat.z-1.))
+    filelist =  glob.glob(os.path.join(dirToRead, 'mhdXwind*.bin') )
+    print(filelist)
+  
+#     for fileInDir in os.listdir(dirToRead):
+    for fileInDir in sorted(filelist):
+        print(fileInDir)        
+#         if fileInDir.startswith(fileToReadPrefix) and  fileInDir.endswith("bin") :            
+#         fileToOpen = dirToRead + fileInDir              
+        fileToOpen =    fileInDir
+        print("file to open:", fileToOpen)  
+        dat.loadDataFromBinFiles(fileToOpen, dat, printDetail=False ) 
+                    
+                    
+        if (calcTorusMass): 
+            torMass= torusMass(dat)
+            print("mass/Msol= ", torMass/Msol)
+            exit()
+
+#         print(dat.Nz, dat.Nx); exit()        
+        #ieq = int( round(dat.Nz/2., 0))
+        ieq = nm.argmin(abs(dat.z-1.))
+        
+        if (calcMdot):                                 
+#             torMass= torusMass(dat)
+                
+            [mdotTot1, mdotTotUp, mdotTotBot,mDotAccr] = dat.massLossRate(dat)
+            print('mdotAccr=', mDotAccr/6.e25,
+                     'out=', mdotTot1, 
+                    'Up=', mdotTotUp, 
+                    'Bot=', mdotTotBot)    
             
-            if (calcMdot):                                 
-    #             torMass= torusMass(dat)
-                
-                [mdotTot1, mdotTotUp, mdotTotBot,mDotAccr] = dat.massLossRate(dat)
-                print('mdotAccr=', mDotAccr/6.e25,
-                         'out=', mdotTot1, 
-                        'Up=', mdotTotUp, 
-                        'Bot=', mdotTotBot)    
-                
-                mdotAccrOverTime.append(mDotAccr/6.e25)       
-                mdotOverTimeUD.append((mdotTotUp +mdotTotBot)/6.e25)
-                mdotOverTimeR.append((mdotTot1)/6.e25)            
-                
-            if (plotEkin): 
-                ekinTot =kinEnergyLoss(dat)
-                print('ekinTot=', ekinTot)
-                ekinOverTime.append(ekinTot)
+            mdotAccrOverTime.append(mDotAccr/6.e25)       
+            mdotOverTimeUD.append((mdotTotUp +mdotTotBot)/6.e25)
+            mdotOverTimeR.append((mdotTot1)/6.e25)            
             
-            if (plotAvrVel):
-                if (firstTime ==0):
-                    torMass= torusMass(dat)
-                    firstTime =1
-                vAvr=velocAvr(dat,torMass)
-                avrVelOverTime.append(vAvr)
-                                  
+        if (plotEkin): 
+            ekinTot =kinEnergyLoss(dat)
+            print('ekinTot=', ekinTot)
+            ekinOverTime.append(ekinTot)
+        
+        if (plotAvrVel):
+            if (firstTime ==0):
+                torMass= torusMass(dat)
+                firstTime =1
+            vAvr=velocAvr(dat,torMass)
+            avrVelOverTime.append(vAvr)
+                              
             #vin1 = 0.2*( dat.u2[ieq, js] + dat.u2[ieq+1, 1] +dat.u2[ieq+2, 1] +dat.u2[ieq-1, 1]+dat.u2[ieq-2, 1] )  *dat.Usc        
             # mv1.append( vin1 )        
             
             
-            simTime.append(nFile)                          
-            
-            
-            
-            nFile += 1
-            if (nFile > maxNumFile):
-                break
-            mdotZi = []
+        simTime.append(nFile)                          
         
+        
+        
+        nFile += 1
+        if (nFile > maxNumFile):
+            break
+        mdotZi = []
     
+
     timeArr=nm.array(simTime)*dat.dt_bin
             
     filename = 'torus9_mdot_tot'+'.p'
