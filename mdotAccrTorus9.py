@@ -16,9 +16,9 @@ import glob
 import socket
 
 import AthenaModel as ath
-
 import time
 import cPickle as pickle
+
 
 
 def set_fonts_etc(ax):
@@ -114,25 +114,16 @@ def velocAvr(dat, mtor):
             
             vAvr += dvzAvr1
      
-    res = vAvr/mtor
-    
-    print('v1Avr=', res)
-    
+    res = vAvr/mtor    
+    print('v1Avr=', res)    
     return(res)
                 
     
 #     v1av = 4*pi*dvav1 * dat.Usc**2 * dat.Dsc* (dat.Rsc**2) / dmdt1
             
-
-
 whatToDo = 'processTauAndColDensFromFile'
 
-
-
-
-
 dirFileToReadBase = ''
-
 dataDir = ''
 
 
@@ -169,7 +160,7 @@ else:
 #--------------------------------------
 files = []
 nFile=1.
-maxNumFile=1000.
+maxNumFile=1000
 
        
 mdotZi =[]
@@ -182,28 +173,62 @@ mv1=[]
 simTime=[]
 #--------------------------------------
 
-mdotFromFile = False #True
+mdotFromPickledFile = False 
 
+plotMdotFromTxtFile = True
+
+
+calcFromDataFiles = False
+writeToTxtFile    =calcFromDataFiles
+
+
+writeToPickledFile=False
+
+# calcFromDataFiles = True
 calcTorusMass = False
+calcMdot = calcFromDataFiles
 
-calcMdot = True
-
-# calcMdot = False
-
-plotMdot = True
- 
-
+plotMdotNow = False
 plotEkin = False
 plotAvrVel =False
 
 firstTime = 0
 fileToReadPrefix="mhdXwind"
 
+if plotMdotFromTxtFile:
+    filesToRead = ['torus9_mdot_tot.dat']        
+    filename =filesToRead[0]
+    filename = dirFileToReadBase +'/'+ filename
+    
+    try:
+        timeMdot=nm.loadtxt(filename)
+        print('loading data from',filename)
+    except IOError:
+        print('cannot load data from',filename)
+        exit()
+        
+    time = timeMdot[:,0]            
+    mdotAccr = timeMdot[:,1]
+    mdotWin = timeMdot[:,2]
+    
+    mdotAvr=mdotAccr
+    f = plt.figure()
+    ax = f.add_subplot(111)
+    y1 = mdotAvr
+    y2 = mdotWin        
+    time*= dat.tsc/31536e3
+    ax.plot(time,  log10(fabs(y1)))
+    ax.plot(time,  log10(fabs(y2)), '--',linewidth=2)        
+    ax.legend(('${\dot M_{a}}$', '${\dot M}_{w}$'), loc='lower right')
+#     plt.xlim((0,113000))
+    show(); 
+    exit()
 
-if(not mdotFromFile):
+    
+if calcFromDataFiles :
     
     filelist =  glob.glob(os.path.join(dirToRead, 'mhdXwind*.bin') )
-    print(filelist)
+#     print(filelist)
   
 #     for fileInDir in os.listdir(dirToRead):
     for fileInDir in sorted(filelist):
@@ -217,7 +242,7 @@ if(not mdotFromFile):
                     
         if (calcTorusMass): 
             torMass= torusMass(dat)
-            print("mass/Msol= ", torMass/Msol)
+            print("mass/Msol= ", torMass/MSOL)
             exit()
 
 #         print(dat.Nz, dat.Nx); exit()        
@@ -251,11 +276,8 @@ if(not mdotFromFile):
                               
             #vin1 = 0.2*( dat.u2[ieq, js] + dat.u2[ieq+1, 1] +dat.u2[ieq+2, 1] +dat.u2[ieq-1, 1]+dat.u2[ieq-2, 1] )  *dat.Usc        
             # mv1.append( vin1 )        
-            
-            
-        simTime.append(nFile)                          
-        
-        
+                        
+        simTime.append(nFile)                                      
         
         nFile += 1
         if (nFile > maxNumFile):
@@ -264,12 +286,23 @@ if(not mdotFromFile):
     
 
     timeArr=nm.array(simTime)*dat.dt_bin
-            
-    filename = 'torus9_mdot_tot'+'.p'
-    print("mdot_accr pickle file",  filename)
-    pickle.dump(zip(timeArr,mdotAccrOverTime,mdotOverTimeUD, mdotOverTimeR), open(filename, "wb")) 
-    print("mdot_accr saved to  ", filename)
+    totData = zip(timeArr,mdotAccrOverTime,mdotOverTimeUD, mdotOverTimeR)
+    
+    if writeToPickledFile:
+        filename = 'torus9_mdot_tot'+'.p'
+        print("mdot_accr pickle file",  filename)
+        pickle.dump( totData, open(filename, "wb")) 
+        print("mdot_accr saved to  ", filename)
         
+    if writeToTxtFile:
+        filename = 'torus9_mdot_tot'+'.dat'        
+        try:
+            nm.savetxt(filename,  list(totData))
+            print("mdot_accr txt file",  filename)
+        except IOError:
+            print('cannot save to', filename)
+            
+            
     # filename = 'torus9_mdotaccr_'+'.p'
     # print("mdot_accr pickle file",  filename)
     # pickle.dump(zip(timeArr,mdotAccrOverTime), open(filename, "wb")) 
@@ -287,8 +320,6 @@ if(not mdotFromFile):
         
         
     
-    f = plt.figure()    
-    ax = f.add_subplot(111)
     
     
     
@@ -296,29 +327,30 @@ if(not mdotFromFile):
     #ax.plot(timeArr,  log10(ekinOverTime))
 
 
-if mdotFromFile:
     
-    filesToRead = ['torus9_mdot_tot.p']
-        
+if mdotFromPickledFile:   
+    
+#     f = plt.figure()
+#     ax = f.add_subplot(111)
+
+    filesToRead = ['torus9_mdot_tot.p']        
     iiter = range(size(filesToRead))
     lineType = ['-']
         
     t0 = 0    
-    f = plt.figure()
+    
     
     for filename, i in zip(filesToRead, iiter):
         try:            
             filename = dirFileToReadBase +'/'+ filename
-            print(filename)
-            
-            
+            print(filename)                        
             timeMdot = nm.asarray( pickle.load( open( filename, "rb" ) ) )            
-            time = timeMdot[:,0]
-            
+          
+            time = timeMdot[:,0]            
             mdotAccr = timeMdot[:,1]
             mdotWin = timeMdot[:,2]
 #             print mdotWin
-                        
+
             print("loaded mdot_accr form a pickled file",  filename)
    
         except IOError:
@@ -327,10 +359,8 @@ if mdotFromFile:
         convol_window = 10
         mdotAvr=mdotAccr
 #         mdotAvr = movingAverage(mdotAccr, convol_window)
-        ax = f.add_subplot(111)
-        
-#         ax.plot(time,  log10(mdot))
-        
+        ax = f.add_subplot(111)        
+#         ax.plot(time,  log10(mdot))        
         y1 = mdotAvr
         y2 = mdotWin
         
@@ -374,38 +404,32 @@ if mdotFromFile:
     show(); 
     exit()
 
-if (plotMdot): 
-    
-#     ax.plot(timeArr,  mdotOverTime)
-         
-    y=log10(abs( nm.array(mdotAccrOverTime) ) )
-                     
+if plotMdotNow:     
+    f = plt.figure()    
+    ax = f.add_subplot(111)
 
+#     ax.plot(timeArr,  mdotOverTime)         
+    y=log10(abs( nm.array(mdotAccrOverTime) ) )                     
 #     y=mdotOverTime
     
 #     ax.plot(timeArr,  y)
 #     ax.plot(timeArr,  log10(mdotOverTimeR))
 #     ax.plot(timeArr,  (mdotOverTimeUD))    
 #     set_fonts_etc(ax)
-
-    ax.plot(timeArr,  log10(abs(mdotAccrAvr)))
-    
-    
-
-    show()
-    
+    ax.plot(timeArr,  y)
+    show()    
     exit()
     
     
 
 
-if (plotMassLoss):     
-    
-    mLost = trapz(mdotOverTime, timeArr* 4.8*10**3)
-    print("mLost=", mLost)
-    
-    ax.plot(timeArr,  (mdotOverTime))
-    
-#ax.plot(simTime, mv1)
+# if (plotMassLoss):     
+#     
+#     mLost = trapz(mdotOverTime, timeArr* 4.8*10**3)
+#     print("mLost=", mLost)
+#     
+#     ax.plot(timeArr,  (mdotOverTime))
+#     
+# #ax.plot(simTime, mv1)
 
 plt.show()
