@@ -160,7 +160,7 @@ else:
 #--------------------------------------
 files = []
 nFile=1.
-maxNumFile=1000
+maxNumFile=10000
 
        
 mdotZi =[]
@@ -175,10 +175,10 @@ simTime=[]
 
 mdotFromPickledFile = False 
 
-plotMdotFromTxtFile = True
+plotMdotFromTxtFile = False
 
 
-calcFromDataFiles = False
+calcFromDataFiles = True
 writeToTxtFile    =calcFromDataFiles
 
 
@@ -196,9 +196,10 @@ firstTime = 0
 fileToReadPrefix="mhdXwind"
 
 if plotMdotFromTxtFile:
-    filesToRead = ['torus9_mdot_tot.dat']        
+    filesToRead = ['torus9_mdot_HW_tot.dat']        
     filename =filesToRead[0]
-    filename = dirFileToReadBase +'/'+ filename
+
+    filename = put_out +'/'+ filename
     
     try:
         timeMdot=nm.loadtxt(filename)
@@ -295,7 +296,8 @@ if calcFromDataFiles :
         print("mdot_accr saved to  ", filename)
         
     if writeToTxtFile:
-        filename = 'torus9_mdot_tot'+'.dat'        
+        # filename =  put_out +'/'+ 'torus9_mdot_HW_tot'+'.dat'        
+        filename =  put_out +'/'+ 'torus9_mdot_SL_tot'+'.dat'        
         try:
             nm.savetxt(filename,  list(totData))
             print("mdot_accr txt file",  filename)
