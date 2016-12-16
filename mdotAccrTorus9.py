@@ -21,6 +21,7 @@ import cPickle as pickle
 
 
 
+
 def set_fonts_etc(ax):
     fontsize_bar=14
     fontsize_x = 16
@@ -146,7 +147,8 @@ if socket.gethostname()=='atorus':
 else:
      locdirList = [ 'SolovievSep201615_256x8x256_L0.n10e10/']
      locdirList = [ 'runDec201608_256x8x256_L0.5n10e8/']
-     put_out= '/Users/dora/Documents/TEX/torus9/'
+     put_out= '/Users/dora/WORK/ECLIPSE_SPACE/torus9'
+     put_FIG = '/Users/dora/Documents/TEX/torus9/'
      locdir = locdirList[0]
      dirFileToReadBase = os.getcwd()
      dataDir = '/DATA/'
@@ -175,10 +177,10 @@ simTime=[]
 
 mdotFromPickledFile = False 
 
-plotMdotFromTxtFile = False
+plotMdotFromTxtFile = True
 
 
-calcFromDataFiles = True
+calcFromDataFiles = False
 writeToTxtFile    =calcFromDataFiles
 
 
@@ -196,32 +198,49 @@ firstTime = 0
 fileToReadPrefix="mhdXwind"
 
 if plotMdotFromTxtFile:
-    filesToRead = ['torus9_mdot_HW_tot.dat']        
-    filename =filesToRead[0]
-
-    filename = put_out +'/'+ filename
     
-    try:
-        timeMdot=nm.loadtxt(filename)
-        print('loading data from',filename)
-    except IOError:
-        print('cannot load data from',filename)
-        exit()
+    filesToRead = ['torus9_mdot_HW_tot.dat', 'torus9_mdot_SL_tot.dat']        
+#     f = plt.figure()
+    f = plt.figure(1, (15,7))  
+    
+    for filename,i in zip(filesToRead, range(len(filesToRead))):
+                
+        filename = put_out +'/'+ filename
+    
+        try:
+            timeMdot=nm.loadtxt(filename)
+            print('loading data from',filename)
+        except IOError:
+            print('cannot load data from',filename)
+            exit()
         
-    time = timeMdot[:,0]            
-    mdotAccr = timeMdot[:,1]
-    mdotWin = timeMdot[:,2]
+        time = timeMdot[:,0]            
+        mdotAccr = timeMdot[:,1]
+        mdotWin = timeMdot[:,2]
+        
+        mdotAvr=mdotAccr
+        ax = f.add_subplot(1,2,i+1)
+#         if i==0:
+        
+#         if i==1:
+#             ax = f.add_subplot(122)
+        y1 = mdotAvr
+        y2 = mdotWin        
+        time*= dat.tsc/31536e3
+        ax.plot(time,  log10(fabs(y1)))
+        ax.plot(time,  log10(fabs(y2)), '--',linewidth=2)        
+        ax.legend(('${\dot M_{a}}$', '${\dot M}_{w}$'), loc='lower right')
+#         plt.xlim((0,113000))
+
+        ax.set_xlabel ("$t [yr]$",  fontsize=16 )
+        ax.set_ylabel ("log ${\dot M}[M_\odot/yr]$", fontsize=16)
+        ax.ticklabel_format(style = 'sci', useOffset=True)
+#     ax.ticklabel_format(style = 'sci', useOffset=False)
+    f.suptitle('Accretion rate and wind mass-loss rate', fontsize=16)
     
-    mdotAvr=mdotAccr
-    f = plt.figure()
-    ax = f.add_subplot(111)
-    y1 = mdotAvr
-    y2 = mdotWin        
-    time*= dat.tsc/31536e3
-    ax.plot(time,  log10(fabs(y1)))
-    ax.plot(time,  log10(fabs(y2)), '--',linewidth=2)        
-    ax.legend(('${\dot M_{a}}$', '${\dot M}_{w}$'), loc='lower right')
-#     plt.xlim((0,113000))
+    fileNameToSave = put_FIG+'mdotAccrAndWindTwoPanel'
+#     f.savefig(fileNameToSave + ".pdf", format='pdf')
+    
     show(); 
     exit()
 
