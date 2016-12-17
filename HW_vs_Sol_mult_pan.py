@@ -1,4 +1,8 @@
-#!/Library/Frameworks/Python.framework/Versions/Current/bin/python
+#!/local/data/atorus1/dora/Compilers/epd-7.3-1-rh5-x86_64(1)/bin/python
+
+
+##!/Library/Frameworks/Python.framework/Versions/Current/bin/python
+
 
 import socket
 
@@ -91,7 +95,18 @@ what2Do = None
 strmPlot = False
 
 if socket.gethostname()=='atorus':
-    locdirList = ['/local/data/atorus1/dora/PROJECTS/AthenaWind/']
+   
+
+     putToDataDirs= '/local/data/atorus1/dora/PROJECTS/'
+
+     locdirList = [ 'AthenaWind_cln2/bin/', 'AthenaWind_cln2/bin']
+                             
+     put_out= '/local/data/atorus1/dora/PROJECTS/SCRIPTS/T9/'
+     put_FIG = '/local/data/atorus1/dora/PROJECTS/SCRIPTS/T9/'
+
+     dataFileList = [['mhdXwind.0050.bin', 'mhdXwind.0150.bin', 'mhdXwind.0343.bin'], \
+                                ['mhdXwind.0050.bin', 'mhdXwind.0150.bin', 'mhdXwind.0343.bin']]
+
 else:
      putToDataDirs= '/Users/dora/WORK/ECLIPSE_SPACE/torus9/DATA/DAT_for_figures/' 
      locdirList = [ 'HW/', 'SL/']
@@ -99,8 +114,8 @@ else:
      put_out= '/Users/dora/WORK/ECLIPSE_SPACE/torus9'
      put_FIG = '/Users/dora/Documents/TEX/torus9/'
     
-     dataFileList = [['mhdXwind.0050.bin', 'mhdXwind.0150.bin', 'mhdXwind.0280.bin'], \
-                                ['mhdXwind.0050.bin', 'mhdXwind.0150.bin', 'mhdXwind.0280.bin']]
+     dataFileList = [['mhdXwind.0050.bin', 'mhdXwind.0150.bin', 'mhdXwind.0343.bin'], \
+                                ['mhdXwind.0050.bin', 'mhdXwind.0150.bin', 'mhdXwind.0343.bin']]
 
 numRaw=  len(dataFileList[0][:])
 

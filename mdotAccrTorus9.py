@@ -132,7 +132,7 @@ dataDir = ''
 dat =ath.athDataModel()
 
 if socket.gethostname()=='atorus':
-    locdirList = ['/local/data/atorus1/dora/PROJECTS/AthenaWind/']
+    locdirList = ['/local/data/atorus1/dora/PROJECTS/AthenaWind_cln2/']
 
     locdir = locdirList[0]   
     dirToRead=locdir+'tst/cylindrical/'
@@ -141,8 +141,8 @@ if socket.gethostname()=='atorus':
    
     dirToRead=locdir+'bin/'
     print(dirToRead)
-    
     put_out= '/local/data/atorus1/dora/PROJECTS/SCRIPTS/T9'
+    put_FIG= '/local/data/atorus1/dora/PROJECTS/SCRIPTS/T9'
 
 else:
      locdirList = [ 'SolovievSep201615_256x8x256_L0.n10e10/']
@@ -178,7 +178,6 @@ simTime=[]
 mdotFromPickledFile = False 
 
 plotMdotFromTxtFile = True
-
 
 calcFromDataFiles = False
 writeToTxtFile    =calcFromDataFiles
@@ -239,7 +238,7 @@ if plotMdotFromTxtFile:
     f.suptitle('Accretion rate and wind mass-loss rate', fontsize=16)
     
     fileNameToSave = put_FIG+'mdotAccrAndWindTwoPanel'
-#     f.savefig(fileNameToSave + ".pdf", format='pdf')
+    f.savefig(fileNameToSave + ".pdf", format='pdf')
     
     show(); 
     exit()
@@ -315,8 +314,8 @@ if calcFromDataFiles :
         print("mdot_accr saved to  ", filename)
         
     if writeToTxtFile:
-        # filename =  put_out +'/'+ 'torus9_mdot_HW_tot'+'.dat'        
-        filename =  put_out +'/'+ 'torus9_mdot_SL_tot'+'.dat'        
+        filename =  put_out +'/'+ 'torus9_mdot_HW_tot'+'.dat'        
+#        filename =  put_out +'/'+ 'torus9_mdot_SL_tot'+'.dat'
         try:
             nm.savetxt(filename,  list(totData))
             print("mdot_accr txt file",  filename)
