@@ -53,38 +53,18 @@ def set_fonts_etc(ax):
         
 def add_inner_title(ax, title, loc, size=None, **kwargs):
     from matplotlib.offsetbox import AnchoredText
-    from matplotlib.patheffects import withStroke
-    
-    
-    if size is None:
-        
-        size = dict(size=plt.rcParams['legend.fontsize'])
-    
-    size = dict(size=20)
-    
+    from matplotlib.patheffects import withStroke        
+    if size is None:        
+        size = dict(size=plt.rcParams['legend.fontsize'])    
+    size = dict(size=20)    
     at = AnchoredText(title, loc=loc, prop=size,
                       pad=0., borderpad=0.5,
-                      frameon=False, **kwargs)
-    
-    ax.add_artist(at)
-    
-    at.txt._text.set_path_effects([withStroke(foreground="w", linewidth=3)])
-    
+                      frameon=False, **kwargs)    
+    ax.add_artist(at)    
+    at.txt._text.set_path_effects([withStroke(foreground="w", linewidth=3)])    
     return at
 
-def formatFileName(timeNum):
-    time = str(timeNum)
-    strLen= len(time)
 
-    if strLen==1:
-        return('000'+time)
-    elif strLen==2:
-        return('00'+time)
-    elif strLen==3:
-        return('000'+time)
-    else:
-        return(time)
-    
 
 
 Nx=0 
@@ -109,43 +89,46 @@ if socket.gethostname()=='atorus':
 
 else:
      putToDataDirs= '/Users/dora/WORK/ECLIPSE_SPACE/torus9/DATA/DAT_for_figures/' 
-     locdirList = [ 'HW/', 'SL/']
+     locdirList = [ 'SL/', 'HW/']
                              
      put_out= '/Users/dora/WORK/ECLIPSE_SPACE/torus9'
      put_FIG = '/Users/dora/Documents/TEX/torus9/'
     
-     dataFileList = [['mhdXwind.0050.bin', 'mhdXwind.0150.bin', 'mhdXwind.0343.bin'], \
-                                ['mhdXwind.0050.bin', 'mhdXwind.0150.bin', 'mhdXwind.0343.bin']]
+     dataFileList = [['mhdXwind.0050.bin', 'mhdXwind.0150.bin', 'mhdXwind.0340.bin'], \
+                                ['mhdXwind.0050.bin', 'mhdXwind.0150.bin', 'mhdXwind.0340.bin']]
 
 numRaw=  len(dataFileList[0][:])
 
 
   
-fig = plt.figure(1, (10, 10))  
+fig = plt.figure(1, (10, 7))  
 grid = AxesGrid(fig, 111, # similar to subplot(132)
                     nrows_ncols = (numRaw, 2),
-#                     axes_pad = 0.0,
-                    axes_pad=(0.45, 0.35),
+                    axes_pad = 0.0,
+#                     axes_pad=(0.45, 0.35),
                     share_all=True,
                     label_mode = "L",
                     add_all=True,       
                     cbar_pad = 0.,             
                     cbar_location = "right",
-                    cbar_mode="each",
+                    cbar_mode="single", #"each",
                     direction = "column",
                     )
 i_grid =0
+timeTeX=[]
+
 for i_dirs in range(len(locdirList)):    
      dirFileToReadBase = putToDataDirs + locdirList[i_dirs]
      dat = AthenaModel.athDataModel()
      dat.loadSimulationParam(dirFileToReadBase + '/athinput.torus9_hydro_2D', print_res=True)
      
      
-     for fileToOpen in dataFileList[i_dirs] [:]:        
-        print(fileToOpen)          
+     for fileToOpen in dataFileList[i_dirs] [:]:
+#         print(fileToOpen,timeNumeric,arrayTimeTeX)          
         dat.loadDataFromBinFiles(dirFileToReadBase +fileToOpen, dat, printDetail = True)
         print("MBH=", dat.Mbh,   'R0=', dat.Rsc,  'n0=', dat.n0,
                "t_0=", dat.tsc/YR, 'YRs' )
+        
         MBH = dat.Mbh
         (X, Z) = meshgrid(dat.x,dat.z)
         var1 = zeros(dat.nx, dat.nz)                    
@@ -163,6 +146,10 @@ for i_dirs in range(len(locdirList)):
         mx = dat.Mx[ist:ie:stp, phToSHow, jst:je:stp]
         mt = dat.Mt[ist:ie:stp, phToSHow, jst:je:stp]    
         mz = dat.Mz[ist:ie:stp, phToSHow, jst:je:stp]
+        
+        vx = dat.Mx[ist:ie:stp, phToSHow, jst:je:stp]/dat.ro[ist:ie:stp, phToSHow, jst:je:stp]
+        vz = dat.Mz[ist:ie:stp, phToSHow, jst:je:stp]/dat.ro[ist:ie:stp, phToSHow, jst:je:stp]
+        
         if dat.method == 'MHD':
             Bx = dat.Bx[ist:ie:stp, phToSHow, jst:je:stp]    
             Bz = dat.Bz[ist:ie:stp, phToSHow, jst:je:stp]
@@ -173,165 +160,39 @@ for i_dirs in range(len(locdirList)):
 #         grid[i_grid].streamplot(x1, x3, mx, mz, color='r', linewidth=2)
                     
         vatToShow2D=var1
+        stp=17
+
+        qp1 = grid[i_grid].quiver(X[ist:ie:stp, jst:je:stp], Z[ist:ie:stp, jst:je:stp], (vx[ist:ie:stp, jst:je:stp]), 
+                        (vz[ist:ie:stp, jst:je:stp]), width=0.008, scale=2,                            
+        pivot='mid', color='black', 
+        units='x' , headwidth =5, headlength =7,
+        linewidths=(0.5,), edgecolors=('black'))
         
         im = grid[i_grid].imshow(vatToShow2D , interpolation='bilinear',cmap=cm.jet, 
                         extent=[xmin, xmx, zmin, zmx] )    
 
-#         grid[i].set_xlabel ("R(pc)", fontsize=22)
-#         grid[i].set_ylabel ("z(pc)", fontsize=22)                 
-#         grid.cbar_axes[i_dirs].colorbar(im)
+        grid[i_grid].set_xlabel ("R(pc)", fontsize=22)
+        grid[i_grid].set_ylabel ("z(pc)", fontsize=22)                 
+        
+        
         i_grid+=1
-show()
-exit()
+        timeNumeric = float(fileToOpen.split('.')[1])*dat.dt_bin*dat.tsc/YR              
+        timeTeX.append(roundThenStringToLatexFormat(timeNumeric))         
 
-timeNumeric =[63]
+# fig.suptitle('Log density', fontsize=16)        
+grid.cbar_axes[0].colorbar(im)
+for cax in grid.cbar_axes: 
+    cax.toggle_label(True)
 
+for ax, im_title in zip(grid, timeTeX):
+        t = add_inner_title(ax, im_title, loc=2)
+        t.patch.set_ec("none")
+        t.patch.set_alpha(0.5)
 
-
-
-
-# Rsc = dat.Rsc
-# Dsc = MP* dat.n0
-id0 = []
-arrayTimeTeX = []
-
-for time, i in zip(timeNumeric,xrange(len(timeNumeric))):             
-#     arrayTimeTeX.append(roundThenStringToLatexFormat(timePhys))
-    arrayTimeTeX.append(roundThenStringToLatexFormat(time))                  
-#     print('time in yrs=',  timePhys, arrayTimeTeX)
-    print('time in yrs=',  arrayTimeTeX)    
-    timeStr= formatFileName(timeNumeric[i])    
-    id0.append(timeStr)
-    print timeStr
-
-fileNamePrefix ="mhdXwind."
-fileToOpen = put0 +'/'+fileNamePrefix+id0[0]+'.bin'
-
-
-fileToOpen= '/Users/dora/WORK/ECLIPSE_SPACE/torus9/DATA/SolovievSep201615_256x8x256_L0.n10e10//mhdXwind.0158.bin'
-
-print(i, ' ', fileToOpen)          
-dat.loadDataFromBinFiles(fileToOpen, dat, printDetail = True)
-
-
-print("MBH=", dat.Mbh,   'R0=', dat.Rsc,  'n0=', dat.n0,
-               "t_0=", dat.tsc/YR, 'YRs' )
-
-
-# print(63.*dat.dt_bin*dat.tsc/YR); exit()
-
-
-
-    
-# timePhys =   float(timeNumeric)*dat.tsc*dat.dt_bin/YR                  
-#**************************
-
-
-if what2Do == 'calcTorusMass':
-    mTorus= dat.torusMass()
-    print('torusMass=', mTorus/MSUN); exit()
-    
-    Nz = dat.dd[:,10].size
-    plt.plot(dat.x, dat.Usc/1e5*dat.u1[Nz-2,:])
-    show() 
-    exit()
-
-
-fig = plt.figure(1, (10, 10))  
-grid = AxesGrid(fig, 111, # similar to subplot(132)
-                    nrows_ncols = (2, 2),
-#                     axes_pad = 0.0,
-                    axes_pad=(0.45, 0.35),
-                    share_all=True,
-                    label_mode = "L",
-                    add_all=True,       
-                    cbar_pad = 0.,             
-                    cbar_location = "right",
-                    cbar_mode="each",
-                    )
-    
-
-(X, Z) = meshgrid(dat.x,dat.z)
-var1 = zeros(dat.nx, dat.nz)    
-
-
-offset= 4
-offset_i= offset+50
-ist = offset_i;  ie = dat.nz-offset_i;
-jst = offset;      je =dat.nx-offset
-stp=1
-xmin = dat.x[jst]; xmx = dat.x[je-1]
-zmin = dat.z[ist]; zmx = dat.z[ie-1]
-
-(X1, Z1) = meshgrid(dat.x[jst:je], dat.z[ist:ie])
-
-Lk = zeros(dat.nx, dat.nz)
-Lk = 1./sqrt(Z1**2 + X1**2)
-
-# eps = 1.e-2;
-# dat.ro[dat.ro<eps] = eps 
-
-for i in range(4):
-            
-#     xmin = dat.x[jst]; xmx = dat.x[je-1]
-#     zmin = -xmx/2.; zmx = xmx/2
-     
-    phToSHow = 1
-    
-    x1 = X[ist:ie:stp, jst:je:stp]
-    x3 = Z[ist:ie:stp, jst:je:stp] 
-    
-    mx = dat.Mx[ist:ie:stp, phToSHow, jst:je:stp]
-    mt = dat.Mt[ist:ie:stp, phToSHow, jst:je:stp]    
-    mz = dat.Mz[ist:ie:stp, phToSHow, jst:je:stp]
-    if dat.method == 'MHD':
-        Bx = dat.Bx[ist:ie:stp, phToSHow, jst:je:stp]    
-        Bz = dat.Bz[ist:ie:stp, phToSHow, jst:je:stp]
-        print size(Bx), size(Bz)
-        
-    shape = (dat.nz,  dat.nt,  dat.nx)
-        
-    if (i==0):  
-        var1 =  (dat.ro[ist:ie, phToSHow, jst:je]) 
-        grid[0].streamplot(x1, x3, mx, mz, color='r', linewidth=2)
-        
-        grid[0].set_title(r'$\log(\rho)$', fontsize = 22)
-
-    if (i==1):  
-        var1 = log(dat.ro[ist:ie, phToSHow, jst:je]**(GAM-1.))
-        var1 = log(dat.etot[ist:ie, phToSHow, jst:je]) #/ dat.ro[ist:ie, phToSHow, jst:je]**GAM )
-        var1 =  log10(fabs(var1))
-        grid[1].set_title(r'$\log(E_{\rm tot})$', fontsize = 22)
-        
-    if (i==2):  
-                
-        var1 = dat.Mt[ist:ie, phToSHow, jst:je]/Lk/(dat.ro[ist:ie, phToSHow, jst:je])                                
-        var1 =  log10(fabs(var1))                
-        grid[2].set_title(r'$\log( l/l_{\rm k})$', fontsize = 22)
-        
-    if (i==3):  
-        varEm =  (dat.Bt[ist:ie, phToSHow, jst:je]**2+dat.Bx[ist:ie, phToSHow, jst:je]**2+\
-                  dat.Bz[ist:ie, phToSHow, jst:je]**2)
-        
-        var1 =  log10(varEm) 
-        grid[3].set_title(r'$\log( E_{\rm m})$', fontsize = 22)
-        
-    
-    vatToShow2D=var1
-    im = grid[i].imshow(vatToShow2D , interpolation='bilinear',cmap=cm.jet, 
-                    extent=[xmin, xmx, zmin, zmx] )
-    
-    grid[i].set_xlabel ("R(pc)", fontsize=22)
-    grid[i].set_ylabel ("z(pc)", fontsize=22)
-     
        
+fileNameToSave = 'rhoVsTimeSL_HW_G0_5_6panel'
+fig.savefig('/Users/dora/Documents/TEX/torus9/'+fileNameToSave + ".pdf", format='pdf')
         
-    grid.cbar_axes[i].colorbar(im)
-
-
-fileNameToSave = put_out+'fourPanelResultsFig1'
-fig.savefig(fileNameToSave + ".pdf", format='pdf')
-
 show()
 exit()
-    
+
