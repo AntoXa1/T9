@@ -55,14 +55,15 @@ class athDataModel:
       
     locdir=os.getcwd()
     
-    print ("file=", fileNameFullPath)
+#    print ("file=", fileNameFullPath)
     
 #     
     try:
+
 #         for dataLine in open( fileNameFullPath, 'r').read().split('\n'):
         for dataLine in open( fileNameFullPath, 'r').read().splitlines():
             
-#             print(dataLine)
+            print(dataLine)
 
             
             if 'Nx1' in dataLine:
@@ -100,14 +101,24 @@ class athDataModel:
             if 'dt' in dataLine:         
                 dt_bin = re.findall('dt\s*=\s*(\d*\.\d*)', dataLine)[0]                
                 dt_bin_str=re.sub(r'\.', "", dt_bin)
-                self.dt_bin = float(dt_bin)
-                        
+                self.dt_bin = float(dt_bin)               
+#                print(" inforcing dt =0.1  this needs to be corrected \n" )
+                self.dt_bin = 0.1
+
+        
             if 'r0' in dataLine:                                 
                      self.Rsc =  float( re.findall('r0\s*=\s*(\d*.*\d)', dataLine)[0] )        
+                    
+                     
+                     
                      print ("Rc=", self.Rsc)
                      rg = 2.*G*self.Mbh/CL**2
+                     
                      self.Rsc *= rg
-#                      print (self.Rsc)
+                     
+                     self.Rsc = PC
+                     
+                     print ("self.Rsc is scaled ro 1pc")
 
             if 'M2Msun' in dataLine:                                 
                      self.Mbh =  float(  re.findall('M2Msun\s*=\s*(\d*.*\d)', dataLine)[0] )
