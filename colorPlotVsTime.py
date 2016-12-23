@@ -1,4 +1,6 @@
-#!/Library/Frameworks/Python.framework/Versions/Current/bin/python
+#!/local/data/atorus1/dora/Compilers/epd-7.3-1-rh5-x86_64(1)/bin/python
+
+##!/Library/Frameworks/Python.framework/Versions/Current/bin/python
 
 import socket
 
@@ -15,7 +17,7 @@ import AthenaModel
 import convertTimeStamp
 import numpy as nm
 from physics1 import *
-from enstaller.vendor.requests.packages.urllib3 import filepost
+#from enstaller.vendor.requests.packages.urllib3 import filepost
 
 
 def round_to_n(x, n):
@@ -103,7 +105,15 @@ what2Do = None
 strmPlot = False
 
 if socket.gethostname()=='atorus':
-    locdirList = ['/local/data/atorus1/dora/PROJECTS/AthenaWind/']
+    locdirList = ['bin/']    
+    
+    putToDataDirs= '/local/data/atorus1/dora/PROJECTS/AthenaWind_cln3/'
+    
+    putToParamFile = putToDataDirs + 'tst/cylindrical/'
+
+    put_out= '/local/data/atorus1/dora/PROJECTS/SCRIPTS/T9/'
+    put_FIG = '/local/data/atorus1/dora/PROJECTS/SCRIPTS/T9/'
+
 else:
      putToDataDirs= '/Users/dora/WORK/ECLIPSE_SPACE/AthenaWind/'
      putToParamFile = '/Users/dora/WORK/ECLIPSE_SPACE/AthenaWind/tst/cylindrical/'
@@ -113,39 +123,52 @@ else:
      put_FIG = '/Users/dora/Documents/TEX/torus9/'
     
 
-filePostFix = ['1', '40', '60', '90']
+filePostFix = ['40', '90', '368', '492']
+
+#filePostFix = ['60', '90', '368', '736']
+
+#filePostFix = ['60', '90', '368', '625']
+
+
+
 filePostFix = [str.zfill(x,4) for x in filePostFix]    
 timeNumeric =[int(x) for x in filePostFix]
-numRaw=  len(timeNumeric)
+
 
 dirFileToReadBase = putToDataDirs #+ locdirList[0]
 
 print(dirFileToReadBase)         
  
 dat = AthenaModel.athDataModel()
+
 dat.loadSimulationParam(putToParamFile + 'athinput.torus9_hydro_2D', print_res=True)
-print("MBH=", dat.Mbh,   'R0=', dat.Rsc,  'n0=', dat.n0,
-      
-       "t_0=", dat.tsc/YR, 'YRs' )
+
+print("MBH=", dat.Mbh,   'R0=', dat.Rsc,  'n0=', dat.n0,      
+       "t_0=", dat.tsc/YR, 'YRs',  dat.tsc ) 
+
 MBH = dat.Mbh
 
-
-
+timeTeX= []
 phToSHow = 1        
  
 fig = plt.figure(1, (10, 10))  
+numRaw=  len(timeNumeric)
+numRaw=  2
+
 grid = AxesGrid(fig, 111, # similar to subplot(132)
-                    nrows_ncols = (numRaw, 1),
-#                     axes_pad = 0.0,
-                    axes_pad=(0.45, 0.35),
+                    nrows_ncols = (numRaw, 2),
+                    axes_pad = 0.0,
+#                     axes_pad=(0.45, 0.35),
                     share_all=True,
                     label_mode = "L",
                     add_all=True,       
                     cbar_pad = 0.,             
                     cbar_location = "right",
-                    cbar_mode="each",
+                    cbar_mode="single", #"each",
                     direction = "column",
                     )
+
+
 fileNamePrefix ="mhdXwind."
 for postFix,i  in zip(filePostFix, range(len(filePostFix))):
     
@@ -175,14 +198,35 @@ for postFix,i  in zip(filePostFix, range(len(filePostFix))):
     print size(Bx), size(Bz)
     
     var1 =  (dat.ro[ist:ie, phToSHow, jst:je])    
-    vatToShow2D=var1
+    vatToShow2D=log10(var1)
     
     im = grid[i].imshow(vatToShow2D , interpolation='bilinear',cmap=cm.jet, 
                         extent=[xmin, xmx, zmin, zmx] )
-    
+ 
     grid[i].set_xlabel ("R(pc)", fontsize=22)
     grid[i].set_ylabel ("z(pc)", fontsize=22)
+    
 
+    # timeNumeric = float(fileToOpen.split('.')[1])*dat.dt_bin*dat.tsc/YR              
+    timeNumeric = float(fileToOpen.split('.')[1])*dat.dt_bin              
+
+    timeTeX.append("t="+roundThenStringToLatexFormat(timeNumeric)+"$t_0$")         
+
+
+grid.cbar_axes[0].colorbar(im)
+for cax in grid.cbar_axes: 
+    cax.toggle_label(True)
+
+for ax, im_title in zip(grid, timeTeX):
+        t = add_inner_title(ax, im_title, loc=2)
+        t.patch.set_ec("none")
+        t.patch.set_alpha(0.5)
+
+       
+fileNameToSave = 'rhoSOL_G0.0_4panel'
+fig.savefig(put_FIG +fileNameToSave + ".pdf", format='pdf')
+        
 show()
 exit()
+
        

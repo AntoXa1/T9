@@ -79,13 +79,16 @@ if socket.gethostname()=='atorus':
 
      putToDataDirs= '/local/data/atorus1/dora/PROJECTS/'
 
-     locdirList = [ 'AthenaWind_cln2/bin/', 'AthenaWind_cln2/bin']
-                             
+     locdirList = [ 'AthenaWind/bin/', 'AthenaWind_cln2/bin/']
+
+     paramFile =  [  putToDataDirs + x.replace('/bin',"") +'/tst/cylindrical' for  x in locdirList ]
+     print paramFile;
+
      put_out= '/local/data/atorus1/dora/PROJECTS/SCRIPTS/T9/'
      put_FIG = '/local/data/atorus1/dora/PROJECTS/SCRIPTS/T9/'
 
-     dataFileList = [['mhdXwind.0050.bin', 'mhdXwind.0150.bin', 'mhdXwind.0343.bin'], \
-                                ['mhdXwind.0050.bin', 'mhdXwind.0150.bin', 'mhdXwind.0343.bin']]
+     dataFileList = [['mhdXwind.0050.bin', 'mhdXwind.0150.bin', 'mhdXwind.0444.bin'], \
+                                ['mhdXwind.0050.bin', 'mhdXwind.0150.bin', 'mhdXwind.0444.bin']]
 
 else:
      putToDataDirs= '/Users/dora/WORK/ECLIPSE_SPACE/torus9/DATA/DAT_for_figures/' 
@@ -120,7 +123,7 @@ timeTeX=[]
 for i_dirs in range(len(locdirList)):    
      dirFileToReadBase = putToDataDirs + locdirList[i_dirs]
      dat = AthenaModel.athDataModel()
-     dat.loadSimulationParam(dirFileToReadBase + '/athinput.torus9_hydro_2D', print_res=True)
+     dat.loadSimulationParam(paramFile[i_dirs] + '/athinput.torus9_hydro_2D', print_res=True)
      
      
      for fileToOpen in dataFileList[i_dirs] [:]:
@@ -162,11 +165,11 @@ for i_dirs in range(len(locdirList)):
         vatToShow2D=var1
         stp=17
 
-        qp1 = grid[i_grid].quiver(X[ist:ie:stp, jst:je:stp], Z[ist:ie:stp, jst:je:stp], (vx[ist:ie:stp, jst:je:stp]), 
-                        (vz[ist:ie:stp, jst:je:stp]), width=0.008, scale=2,                            
-        pivot='mid', color='black', 
-        units='x' , headwidth =5, headlength =7,
-        linewidths=(0.5,), edgecolors=('black'))
+        # qp1 = grid[i_grid].quiver(X[ist:ie:stp, jst:je:stp], Z[ist:ie:stp, jst:je:stp], (vx[ist:ie:stp, jst:je:stp]), 
+        #                 (vz[ist:ie:stp, jst:je:stp]), width=0.008, scale=2,                            
+        # pivot='mid', color='black', 
+        # units='x' , headwidth =5, headlength =7,
+        # linewidths=(0.5,), edgecolors=('black'))
         
         im = grid[i_grid].imshow(vatToShow2D , interpolation='bilinear',cmap=cm.jet, 
                         extent=[xmin, xmx, zmin, zmx] )    
@@ -178,7 +181,7 @@ for i_dirs in range(len(locdirList)):
         i_grid+=1
         timeNumeric = float(fileToOpen.split('.')[1])*dat.dt_bin*dat.tsc/YR              
         timeTeX.append(roundThenStringToLatexFormat(timeNumeric))         
-
+ 
 # fig.suptitle('Log density', fontsize=16)        
 grid.cbar_axes[0].colorbar(im)
 for cax in grid.cbar_axes: 
@@ -191,7 +194,7 @@ for ax, im_title in zip(grid, timeTeX):
 
        
 fileNameToSave = 'rhoVsTimeSL_HW_G0_5_6panel'
-fig.savefig('/Users/dora/Documents/TEX/torus9/'+fileNameToSave + ".pdf", format='pdf')
+fig.savefig(put_FIG +fileNameToSave + ".pdf", format='pdf')
         
 show()
 exit()
