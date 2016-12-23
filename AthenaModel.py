@@ -59,7 +59,8 @@ class athDataModel:
     
 #     
     try:
-        for dataLine in open( fileNameFullPath, 'r').read().split('\n'):
+#         for dataLine in open( fileNameFullPath, 'r').read().split('\n'):
+        for dataLine in open( fileNameFullPath, 'r').read().splitlines():
             
 #             print(dataLine)
 
