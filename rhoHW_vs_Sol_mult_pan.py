@@ -75,25 +75,18 @@ what2Do = None
 strmPlot = False
 
 if socket.gethostname()=='atorus':
-   
-
      putToDataDirs= '/local/data/atorus1/dora/PROJECTS/'
-
      locdirList = [ 'AthenaWind/bin/', 'AthenaWind_cln2/bin/']
-
      paramFile =  [  putToDataDirs + x.replace('/bin',"") +'/tst/cylindrical' for  x in locdirList ]
      print paramFile;
-
      put_out= '/local/data/atorus1/dora/PROJECTS/SCRIPTS/T9/'
      put_FIG = '/local/data/atorus1/dora/PROJECTS/SCRIPTS/T9/'
-
      dataFileList = [['mhdXwind.0050.bin', 'mhdXwind.0150.bin', 'mhdXwind.0444.bin'], \
                                 ['mhdXwind.0050.bin', 'mhdXwind.0150.bin', 'mhdXwind.0444.bin']]
-
 else:
      putToDataDirs= '/Users/dora/WORK/ECLIPSE_SPACE/torus9/DATA/DAT_for_figures/' 
      locdirList = [ 'SL/', 'HW/']
-                             
+     paramFile =  [  putToDataDirs + x  for  x in locdirList ]                             
      put_out= '/Users/dora/WORK/ECLIPSE_SPACE/torus9'
      put_FIG = '/Users/dora/Documents/TEX/torus9/'
     

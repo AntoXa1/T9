@@ -191,11 +191,9 @@ Lk = 1./sqrt(Z1**2 + X1**2)
 # eps = 1.e-2;
 # dat.ro[dat.ro<eps] = eps 
 
-for i in range(4):
-            
+for i in range(4):            
 #     xmin = dat.x[jst]; xmx = dat.x[je-1]
-#     zmin = -xmx/2.; zmx = xmx/2
-     
+#     zmin = -xmx/2.; zmx = xmx/2     
     phToSHow = 1
     
     x1 = X[ist:ie:stp, jst:je:stp]
@@ -213,8 +211,7 @@ for i in range(4):
         
     if (i==0):  
         var1 =  (dat.ro[ist:ie, phToSHow, jst:je]) 
-        grid[0].streamplot(x1, x3, mx, mz, color='r', linewidth=2)
-        
+        grid[0].streamplot(x1, x3, mx, mz, color='r', linewidth=2)        
         grid[0].set_title(r'$\log(\rho)$', fontsize = 22)
 
     if (i==1):  
