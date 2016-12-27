@@ -81,8 +81,9 @@ if socket.gethostname()=='atorus':
      print paramFile;
      put_out= '/local/data/atorus1/dora/PROJECTS/SCRIPTS/T9/'
      put_FIG = '/local/data/atorus1/dora/PROJECTS/SCRIPTS/T9/'
-     dataFileList = [['mhdXwind.0050.bin', 'mhdXwind.0150.bin', 'mhdXwind.0444.bin'], \
-                                ['mhdXwind.0050.bin', 'mhdXwind.0150.bin', 'mhdXwind.0444.bin']]
+     # listOfFiles = 
+     dataFileList = [['mhdXwind.0150.bin', 'mhdXwind.0350.bin', 'mhdXwind.0595.bin'], \
+                                ['mhdXwind.0150.bin', 'mhdXwind.0350.bin', 'mhdXwind.0595.bin']]
 else:
      putToDataDirs= '/Users/dora/WORK/ECLIPSE_SPACE/torus9/DATA/DAT_for_figures/' 
      locdirList = [ 'SL/', 'HW/']

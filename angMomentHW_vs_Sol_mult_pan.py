@@ -81,8 +81,10 @@ if socket.gethostname()=='atorus':
      print paramFile;
      put_out= '/local/data/atorus1/dora/PROJECTS/SCRIPTS/T9/'
      put_FIG = '/local/data/atorus1/dora/PROJECTS/SCRIPTS/T9/'
-     dataFileList = [['mhdXwind.0050.bin', 'mhdXwind.0150.bin', 'mhdXwind.0444.bin'], \
-                                ['mhdXwind.0050.bin', 'mhdXwind.0150.bin', 'mhdXwind.0444.bin']]
+
+     dataFileList = [['mhdXwind.0150.bin', 'mhdXwind.0350.bin', 'mhdXwind.0595.bin'], \
+                                ['mhdXwind.0150.bin', 'mhdXwind.0350.bin', 'mhdXwind.0595.bin']]
+
 else:
      putToDataDirs= '/Users/dora/WORK/ECLIPSE_SPACE/torus9/DATA/DAT_for_figures/' 
      locdirList = [ 'SL/', 'HW/']
@@ -139,7 +141,7 @@ for i_dirs in range(len(locdirList)):
         (X1, Z1) = meshgrid(dat.x[jst:je], dat.z[ist:ie])     
         Lk = zeros(dat.nx, dat.nz)
         
-        Lk = X1/(Z1**2 + X1**2)**(1/2)
+        Lk = 1./(Z1**2 + X1**2)**(1/2)
         
         phToSHow = 1        
         x1 = X[ist:ie:stp, jst:je:stp]
@@ -160,7 +162,7 @@ for i_dirs in range(len(locdirList)):
         shape = (dat.nz,  dat.nt,  dat.nx)
         var1 =  log10(dat.ro[ist:ie, phToSHow, jst:je]) 
 
-        var1 = dat.Mt[ist:ie, phToSHow, jst:je]/Lk#/(dat.ro[ist:ie, phToSHow, jst:je])                                
+        var1 = dat.Mt[ist:ie, phToSHow, jst:je]/Lk/(dat.ro[ist:ie, phToSHow, jst:je])                                
 #         var1 = dat.Mt[ist:ie, phToSHow, jst:je] 
         var1 =  log10(fabs(var1))
                   
@@ -199,8 +201,8 @@ for ax, im_title in zip(grid, timeTeX):
         t.patch.set_alpha(0.5)
 
 
-fileNameToSave = 'emagVsTimeSL_HW_G0_5_6panel'
-# fig.savefig(put_FIG +fileNameToSave + ".pdf", format='pdf')
+fileNameToSave = 'angMomVsTimeSL_HW_G0_5_6panel'
+fig.savefig(put_FIG +fileNameToSave + ".pdf", format='pdf')
         
 show()
 exit()

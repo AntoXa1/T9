@@ -81,8 +81,10 @@ if socket.gethostname()=='atorus':
      print paramFile;
      put_out= '/local/data/atorus1/dora/PROJECTS/SCRIPTS/T9/'
      put_FIG = '/local/data/atorus1/dora/PROJECTS/SCRIPTS/T9/'
-     dataFileList = [['mhdXwind.0050.bin', 'mhdXwind.0150.bin', 'mhdXwind.0444.bin'], \
-                                ['mhdXwind.0050.bin', 'mhdXwind.0150.bin', 'mhdXwind.0444.bin']]
+
+     dataFileList = [['mhdXwind.0150.bin', 'mhdXwind.0350.bin', 'mhdXwind.0595.bin'], \
+                                ['mhdXwind.0150.bin', 'mhdXwind.0350.bin', 'mhdXwind.0595.bin']]
+
 else:
      putToDataDirs= '/Users/dora/WORK/ECLIPSE_SPACE/torus9/DATA/DAT_for_figures/' 
      locdirList = [ 'SL/', 'HW/']
@@ -186,7 +188,7 @@ for i_dirs in range(len(locdirList)):
         timeTeX.append(roundThenStringToLatexFormat(timeNumeric))         
 
 
-fig.suptitle(r'Log (Emag$_{\rm tor}$ /Emag$_{\rm pol}$)', y=0.95, fontsize=16)        
+fig.suptitle(r'Log (Em$_{\rm tor}$ /Em$_{\rm pol}$)', y=0.95, fontsize=16)        
 grid.cbar_axes[0].colorbar(im)
 for cax in grid.cbar_axes: 
     cax.toggle_label(True)
@@ -198,7 +200,7 @@ for ax, im_title in zip(grid, timeTeX):
 
 
 fileNameToSave = 'emagVsTimeSL_HW_G0_5_6panel'
-# fig.savefig(put_FIG +fileNameToSave + ".pdf", format='pdf')
+fig.savefig(put_FIG +fileNameToSave + ".pdf", format='pdf')
         
 show()
 exit()
