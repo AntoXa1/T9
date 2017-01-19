@@ -1,5 +1,7 @@
 #!/local/data/atorus1/dora/Compilers/epd-7.3-1-rh5-x86_64(1)/bin/python
 
+
+
 import scipy
 from  numpy import ndarray, zeros, array, size, meshgrid, flipud, floor, where, amin, argmin, int
 import numpy as nm
@@ -162,7 +164,7 @@ else:
 #--------------------------------------
 files = []
 nFile=1.
-maxNumFile=10000
+maxNumFile= 478
 
        
 mdotZi =[]
@@ -196,10 +198,11 @@ plotAvrVel =False
 firstTime = 0
 fileToReadPrefix="mhdXwind"
 
+
 if plotMdotFromTxtFile:
     
     filesToRead = ['torus9_mdot_HW_tot.dat', 'torus9_mdot_SL_tot.dat']        
-#     f = plt.figure()
+
     f = plt.figure(1, (15,7))  
     
     for filename,i in zip(filesToRead, range(len(filesToRead))):
@@ -237,7 +240,7 @@ if plotMdotFromTxtFile:
 #     ax.ticklabel_format(style = 'sci', useOffset=False)
     f.suptitle('Accretion rate and wind mass-loss rate', fontsize=16)
     
-    fileNameToSave = put_FIG+'mdotAccrAndWindTwoPanel'
+    fileNameToSave = put_FIG+'/mdotAccrAndWindTwoPanel'
     f.savefig(fileNameToSave + ".pdf", format='pdf')
     
     show(); 
@@ -256,8 +259,12 @@ if calcFromDataFiles :
 #         fileToOpen = dirToRead + fileInDir              
         fileToOpen =    fileInDir
         print("file to open:", fileToOpen)  
-        dat.loadDataFromBinFiles(fileToOpen, dat, printDetail=False ) 
-                    
+        try:
+            dat.loadDataFromBinFiles(fileToOpen, dat, printDetail=False ) 
+        except:
+           print("skip file:", fileToOpen)  
+           break
+
                     
         if (calcTorusMass): 
             torMass= torusMass(dat)
@@ -318,7 +325,7 @@ if calcFromDataFiles :
 #        filename =  put_out +'/'+ 'torus9_mdot_SL_tot'+'.dat'
         try:
             nm.savetxt(filename,  list(totData))
-            print("mdot_accr txt file",  filename)
+            print("saving to mdot_accr txt file",  filename)
         except IOError:
             print('cannot save to', filename)
             
@@ -376,7 +383,7 @@ if mdotFromPickledFile:
         except IOError:
             print("cannot open pickled file", filename)
             
-        convol_window = 10
+            convol_window = 10
         mdotAvr=mdotAccr
 #         mdotAvr = movingAverage(mdotAccr, convol_window)
         ax = f.add_subplot(111)        

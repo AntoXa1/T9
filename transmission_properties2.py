@@ -1,5 +1,7 @@
+#!/local/data/atorus1/dora/Compilers/epd-7.3-1-rh5-x86_64(1)/bin/python
+
 import scipy
-from  numpy import ndarray, zeros, array, size, sqrt, meshgrid, flipud, floor, where, amin, argmin, int
+from  numpy import ndarray, zeros, array, size, sqrt, meshgrid, flipud, floor, where, amin, argmin,int
 import numpy as nm
 from mpl_toolkits.mplot3d import Axes3D
 from pylab import *
@@ -11,7 +13,7 @@ import os
 import time
 import cPickle as pickle
 from matplotlib import colors
-
+import socket
 
 
 from scipy import trapz
@@ -24,7 +26,7 @@ phToSHow = 1
 import AthenaModel as ath
 
 
-# def inclinationToPositionInGrid(dat, th):
+
 
 def plotFormat(ax1,ax2=None,ax3=None,im=None):
 #     from mpl_toolkits.axes_grid1 import make_axes_locatable
@@ -263,24 +265,662 @@ def iteratorOverDataDirectoriesOverHDfFiles(dirFileToReadBase,
 # ----------------------------------------------------------------------------                
 #                                     MAIN            
 # ----------------------------------------------------------------------------
+dat =ath.athDataModel()
+
+if socket.gethostname()=='atorus':
+    # locdirList = ['/local/data/atorus1/dora/PROJECTS/AthenaWind_cln2/']
+
+    # locdir = locdirList[0]   
+    # dirToRead=locdir+'tst/cylindrical/'
+    # print(dirToRead)
+    # dat.loadSimulationParam(dirToRead + 'athinput.torus9_hydro_2D', print_res=True)
+   
+    # dirToRead=locdir+'bin/'
+    # print(dirToRead)
+
+    locdirList2 = [ '/SolovievSep201615_256x8x256_L0.n10e10/']
+    locdirList2 = ['/SolovievSep201614_128x8x128_L0.n10e8/']
+    dirFileToReadBase ='/local/data/atorus1/dora/PROJECTS/AthenaWind'
+    dataDir = ''
+    locdirList2 = ['/bin/']
+
+    put_out= '/local/data/atorus1/dora/PROJECTS/SCRIPTS/T9'
+    put_FIG= '/local/data/atorus1/dora/PROJECTS/SCRIPTS/T9'
+
+else:
+     locdirList = [ 'SolovievSep201615_256x8x256_L0.n10e10/']
+     locdirList = [ 'runDec201608_256x8x256_L0.5n10e8/']
+     put_out= '/Users/dora/WORK/ECLIPSE_SPACE/torus9'
+     put_FIG = '/Users/dora/Documents/TEX/torus9/'
+     locdir = locdirList[0]
+     dirFileToReadBase = os.getcwd()
+     dataDir = '/DATA/'
+     dirFileToReadBase = os.getcwd()
+     dataDir = '/DATA'
+     dirToRead = dirFileToReadBase + dataDir+locdirList[0]
+     dat.loadSimulationParam(dirToRead + 'athinput.torus9_hydro_2D', print_res=True)
             
-# whatToDo = 'calculTauAndColDens'
-whatToDo = 'processTauAndColDensFromFile'
+whatToDo = 'calculTauAndColDens'
 
-dirFileToReadBase = os.getcwd()
-dataDir = '/DATA'
+#whatToDo = 'processTauAndColDensFromFile'
 
 
 
 
-locdirList2 = [ '/SolovievSep201615_256x8x256_L0.n10e10/']
 
-# locdirList2 = ['/SolovievSep201614_128x8x128_L0.n10e8/']
-# dirFileToReadBase ='/Users/dora/WORK/ECLIPSE_SPACE/AthenaWind' 
-# dataDir = ''
-# locdirList2 = ['/bin/']
+
+
 
 if whatToDo == 'calculTauAndColDens':
+
+        import socket
+
+
+from scipy import trapz
+from matplotlib import pyplot as plt
+from physics1 import *
+
+import physics1 as ph
+
+phToSHow = 1
+import AthenaModel as ath
+
+
+
+
+def plotFormat(ax1,ax2=None,ax3=None,im=None):
+#     from mpl_toolkits.axes_grid1 import make_axes_locatable
+
+    fontsize_bar=14
+    fz = 16
+    
+#     ax1.set_ylabel('$\tau N(\tau(\theta)>1)$', fontsize = 22)
+#     ax1.set_title('Obscuring models', fontsize = 19)
+#         
+#     ax1.set_ylabel('log (Number of obscuring models)', fontsize = 19)
+#     for ylabel in ax.get_yticklabels():
+#         ylabel.set_fontsize(fontsize_x)
+#     
+    ax1.set_xlabel('Inclination angle', fontsize=fz)
+    ax1.set_ylabel('$\log(N_{col})$', fontsize=fz)
+#     for xlabel in ax1.get_xticklabels():
+#         xlabel.set_fontsize(fontsize_x)
+# 
+    ax1.set_title('Column density $(cm^{-2})$', fontsize =fz)
+
+    fig.subplots_adjust(wspace=0.2)       
+#     plt.setp([a.get_yticklabels() for a in fig.axes[1:] ], visible=False)
+
+#     ax1.set_ylabel('$log (N_{col})$', fontsize = 19)
+    
+#     for ylabel in ax.get_yticklabels():
+#         ylabel.set_fontsize(fontsize_x)
+#     
+#     ax2.set_xlabel('Inclination angle', fontsize = 19)
+#     for xlabel in ax.get_xticklabels():
+#         xlabel.set_fontsize(fontsize_x)
+    
+#     divider = make_axes_locatable(ax)
+#     cax = divider.append_axes("right", size="5%", pad=0.05)                        
+# 
+#     if (im):
+#         cb =plt.colorbar(im, cax=cax)        
+#         for t in cb.ax.get_yticklabels():
+#             t.set_fontsize(fontsize_bar)
+
+    
+def cellTrace(dat, th, Xsrc_x_z, phToSHow):
+        tiny = 1e-18
+        i_s = dat.i_s
+        ie = dat.ie
+        js = dat.js
+        je = dat.je
+        
+        
+                                
+        zout = dat.x[je] / nm.tan(th) + Xsrc_x_z[1]
+        
+        ic = abs(dat.z - zout).argmin()          
+        jc = je
+        
+#         xcur = nm.array([ dat.x[jc], dat.z[ic] ])
+        
+        xcur = nm.array([ dat.x[dat.je], zout ])                
+        
+        xsrc0= Xsrc_x_z                 
+        
+        a = xcur - xsrc0
+        
+        
+        norm = (xcur - xsrc0)/nm.dot( xcur - xsrc0, xcur - xsrc0)
+        #crossing x_{js} plane
+        xz1 =nm.array([ dat.x[js+1], norm[1]/max(norm[0], tiny)*(dat.x[js+1] - xsrc0[0]) + xsrc0[1] ])            
+                
+#         i =  minloc((dat. z -xz1[1]) **2)        
+        i = abs(dat.z - xz1[1]).argmin()        
+        if i>=dat.ie or i==dat.i_s: return(0.,0.)
+        
+        j = dat.js
+        xz0 = nm.array([ dat.x[j], dat.z[i] ])
+        
+        
+        stp = 0
+        dstot = 0.
+        tau = 0.
+        dtau = 0.
+        dcol_dns = 0.
+        col_dns = 0.
+
+        dl = 0.
+      
+        while True:        
+                
+                xz1 =nm.array([ dat.x[j+1], #crossing x_{j+1} plane   
+                    norm[1]/max(norm[0], tiny)*(dat.x[j+1] - xsrc0[0]) + xsrc0[1] ])            
+                
+                Sx = sqrt(nm.dot(xz1 - xz0, xz1-xz0))
+                
+                itm = i+  nm.int( nm.sign( norm[1] ) )# crossing z_{i+-1} plane 
+
+                if (norm[1] != 0.):
+                    xz2 =nm.array([ norm[0]/norm[1] *(dat.z[itm] - xsrc0[1]) + xsrc0[0], 
+                                dat.z[itm] ])
+                else:
+                    xz2 =nm.array([ norm[0]/nm.max(norm[1],tiny)*(dat.z[itm] - xsrc0[1]) + xsrc0[0], 
+                                dat.z[itm] ])
+                
+                Sz = sqrt(nm.dot(xz2 - xz0, xz2-xz0))
+
+                if (Sz>Sx):
+                    dl = Sx  #right
+                    xz0 = xz1
+                    j += 1
+                else:
+                    dl = Sz #up or down
+                    xz0 = xz2
+                    i = itm
+                
+                dstot += dl                                
+                stp += 1
+                opac = ph.KPE
+                            
+#                 print "here", dat.Rsc, dat.Dsc,  dat.ro[i,phToSHow, j],  opac, dl,i,j                
+                                
+                dtau = dat.Rsc*dat.Dsc* dat.ro[i,phToSHow,j]* opac * dl
+            
+                dcol_dns = nm.fabs( dat.ro[i, phToSHow, j]*dat.n0* dat.Rsc*dl)
+                
+                tau += dtau                
+                col_dns += dcol_dns
+#                 print i, j, stp
+                
+                if  ( i <= dat.i_s or i >= dat.ie or j <= dat.js or j >= dat.je-1):
+                    break
+                if  i==ic and j ==jc :
+                    break
+        
+    
+        return(tau, col_dns)
+        
+def transmisionFunctionsAngleGrid(dat, printResults=False):
+    Nth = 100         
+    
+    Xsrc = array([0, 0])  
+    
+#     res = dat.x[dat.js]/dat.z[dat.ie]
+#     thmax = nm.pi / 2
+    thmin = nm.arctan2(dat.x[dat.js], dat.z[dat.ie]-Xsrc[0] )
+    
+    thmax =nm.arctan2(dat.x[dat.js], dat.z[dat.i_s]-Xsrc[0])
+        
+    angle = linspace(thmin, thmax, Nth) 
+    
+#     print angle, range(1,Nth)
+#     time.sleep(3)
+    
+    tauTheta = zeros(Nth)
+    colDens = zeros(Nth)
+                                                 
+    for k,th in zip(range(1,Nth), angle):        
+#         th = nm.pi/2              
+#         print k,th
+#         time.sleep(3)
+        tauTheta[k], colDens[k] = cellTrace(dat, th, Xsrc_x_z = [Xsrc[1], Xsrc[0]], phToSHow =phToSHow)        
+#         print("tau=", tauTheta[k], "colDens=", colDens[k], th, Nth)
+        
+#         exit(); time.sleep(3)
+        
+        
+    if printResults:
+        fig  = plt.figure()
+        ax = fig.add_subplot(111)
+        funcToPlot =  log10(colDens)
+        funcToPlot =  tauTheta
+        ax.plot(angle*180./nm.pi, funcToPlot)
+        show()
+    
+    return(tauTheta,colDens, angle)
+    
+
+
+def iteratorOverDataDirectoriesOverHDfFiles(dirFileToReadBase,
+                                        locdirList2, funcToCalculate, fileToSavePrefix):
+                                            
+    mod={}
+    maxNumFile = 100
+
+    dat =ath.athDataModel()   
+    
+    for dirName, i in zip(locdirList2, range(size(locdirList2))):
+        
+        mod.update({ locdirList2[i]:{'ang':[], 'tau':[], 'cdens':[] }})
+        
+        simTime = []
+        
+        dirToRead = dirFileToReadBase + dirName
+        
+#         print "dirToRead=",  dirToRead
+        
+        
+        
+        nFile = 0.
+        dat.loadSimulationParam(dirToRead + 'athinput.torus9_hydro_2D', print_res=True)   
+        
+        
+        for fileInDir in os.listdir(dirToRead):
+            
+#             print("1  ",  fileInDir)
+            if fileInDir.startswith("mhdXwind"):                         
+
+                dat.loadDataFromBinFiles(dirToRead + fileInDir, dat, 
+                                                printDetail=False)        
+                
+                print("file to open:", dirToRead + fileInDir)
+                               
+                tau, cdens, ang  = funcToCalculate(dat, printResults=False)
+                
+#                 print tau, cdens, ang
+                                              
+                
+                mod[locdirList2[i]]['tau'].append(tau.tolist())
+                mod[locdirList2[i]]['cdens'].append(cdens.tolist())
+                                               
+                if not mod[ locdirList2[i]]['ang']  :
+                    mod[locdirList2[i]]['ang'].append(ang.tolist())
+            
+                simTime.append(nFile)                                                         
+                nFile += 1
+                if (nFile > maxNumFile):
+                    print "maxNumFile reached"
+                    break
+                
+        
+        mod[ locdirList2[i] ].update( {'par': dat.par  })  
+              
+        mod[ locdirList2[i] ]['par'].update( {'dt_bin': dat.dt_bin })
+       
+    return(mod)
+        
+        
+# ----------------------------------------------------------------------------                
+#                                     MAIN            
+# ----------------------------------------------------------------------------
+dat =ath.athDataModel()
+
+if socket.gethostname()=='atorus':
+    # locdirList = ['/local/data/atorus1/dora/PROJECTS/AthenaWind_cln2/']
+
+    # locdir = locdirList[0]   
+    # dirToRead=locdir+'tst/cylindrical/'
+    # print(dirToRead)
+    # dat.loadSimulationParam(dirToRead + 'athinput.torus9_hydro_2D', print_res=True)
+   
+    # dirToRead=locdir+'bin/'
+    # print(dirToRead)
+
+    locdirList2 = [ '/SolovievSep201615_256x8x256_L0.n10e10/']
+    locdirList2 = ['/SolovievSep201614_128x8x128_L0.n10e8/']
+    dirFileToReadBase ='/local/data/atorus1/dora/PROJECTS/AthenaWind'
+    dataDir = ''
+    locdirList2 = ['/bin/']
+
+    put_out= '/local/data/atorus1/dora/PROJECTS/SCRIPTS/T9'
+    put_FIG= '/local/data/atorus1/dora/PROJECTS/SCRIPTS/T9'
+
+else:
+     locdirList = [ 'SolovievSep201615_256x8x256_L0.n10e10/']
+     locdirList = [ 'runDec201608_256x8x256_L0.5n10e8/']
+     put_out= '/Users/dora/WORK/ECLIPSE_SPACE/torus9'
+     put_FIG = '/Users/dora/Documents/TEX/torus9/'
+     locdir = locdirList[0]
+     dirFileToReadBase = os.getcwd()
+     dataDir = '/DATA/'
+     dirFileToReadBase = os.getcwd()
+     dataDir = '/DATA'
+     dirToRead = dirFileToReadBase + dataDir+locdirList[0]
+     dat.loadSimulationParam(dirToRead + 'athinput.torus9_hydro_2D', print_res=True)
+            
+whatToDo = 'calculTauAndColDens'
+
+#whatToDo = 'processTauAndColDensFromFile'
+
+
+
+
+
+
+
+
+if whatToDo == 'calculTauAndColDens':
+
+        import socket
+
+
+from scipy import trapz
+from matplotlib import pyplot as plt
+from physics1 import *
+
+import physics1 as ph
+
+phToSHow = 1
+import AthenaModel as ath
+
+
+
+
+def plotFormat(ax1,ax2=None,ax3=None,im=None):
+#     from mpl_toolkits.axes_grid1 import make_axes_locatable
+
+    fontsize_bar=14
+    fz = 16
+    
+#     ax1.set_ylabel('$\tau N(\tau(\theta)>1)$', fontsize = 22)
+#     ax1.set_title('Obscuring models', fontsize = 19)
+#         
+#     ax1.set_ylabel('log (Number of obscuring models)', fontsize = 19)
+#     for ylabel in ax.get_yticklabels():
+#         ylabel.set_fontsize(fontsize_x)
+#     
+    ax1.set_xlabel('Inclination angle', fontsize=fz)
+    ax1.set_ylabel('$\log(N_{col})$', fontsize=fz)
+#     for xlabel in ax1.get_xticklabels():
+#         xlabel.set_fontsize(fontsize_x)
+# 
+    ax1.set_title('Column density $(cm^{-2})$', fontsize =fz)
+
+    fig.subplots_adjust(wspace=0.2)       
+#     plt.setp([a.get_yticklabels() for a in fig.axes[1:] ], visible=False)
+
+#     ax1.set_ylabel('$log (N_{col})$', fontsize = 19)
+    
+#     for ylabel in ax.get_yticklabels():
+#         ylabel.set_fontsize(fontsize_x)
+#     
+#     ax2.set_xlabel('Inclination angle', fontsize = 19)
+#     for xlabel in ax.get_xticklabels():
+#         xlabel.set_fontsize(fontsize_x)
+    
+#     divider = make_axes_locatable(ax)
+#     cax = divider.append_axes("right", size="5%", pad=0.05)                        
+# 
+#     if (im):
+#         cb =plt.colorbar(im, cax=cax)        
+#         for t in cb.ax.get_yticklabels():
+#             t.set_fontsize(fontsize_bar)
+
+    
+def cellTrace(dat, th, Xsrc_x_z, phToSHow):
+        tiny = 1e-18
+        i_s = dat.i_s
+        ie = dat.ie
+        js = dat.js
+        je = dat.je
+        
+        
+                                
+        zout = dat.x[je] / nm.tan(th) + Xsrc_x_z[1]
+        
+        ic = abs(dat.z - zout).argmin()          
+        jc = je
+        
+#         xcur = nm.array([ dat.x[jc], dat.z[ic] ])
+        
+        xcur = nm.array([ dat.x[dat.je], zout ])                
+        
+        xsrc0= Xsrc_x_z                 
+        
+        a = xcur - xsrc0
+        
+        
+        norm = (xcur - xsrc0)/nm.dot( xcur - xsrc0, xcur - xsrc0)
+        #crossing x_{js} plane
+        xz1 =nm.array([ dat.x[js+1], norm[1]/max(norm[0], tiny)*(dat.x[js+1] - xsrc0[0]) + xsrc0[1] ])            
+                
+#         i =  minloc((dat. z -xz1[1]) **2)        
+        i = abs(dat.z - xz1[1]).argmin()        
+        if i>=dat.ie or i==dat.i_s: return(0.,0.)
+        
+        j = dat.js
+        xz0 = nm.array([ dat.x[j], dat.z[i] ])
+        
+        
+        stp = 0
+        dstot = 0.
+        tau = 0.
+        dtau = 0.
+        dcol_dns = 0.
+        col_dns = 0.
+
+        dl = 0.
+      
+        while True:        
+                
+                xz1 =nm.array([ dat.x[j+1], #crossing x_{j+1} plane   
+                    norm[1]/max(norm[0], tiny)*(dat.x[j+1] - xsrc0[0]) + xsrc0[1] ])            
+                
+                Sx = sqrt(nm.dot(xz1 - xz0, xz1-xz0))
+                
+                itm = i+  nm.int( nm.sign( norm[1] ) )# crossing z_{i+-1} plane 
+
+                if (norm[1] != 0.):
+                    xz2 =nm.array([ norm[0]/norm[1] *(dat.z[itm] - xsrc0[1]) + xsrc0[0], 
+                                dat.z[itm] ])
+                else:
+                    xz2 =nm.array([ norm[0]/nm.max(norm[1],tiny)*(dat.z[itm] - xsrc0[1]) + xsrc0[0], 
+                                dat.z[itm] ])
+                
+                Sz = sqrt(nm.dot(xz2 - xz0, xz2-xz0))
+
+                if (Sz>Sx):
+                    dl = Sx  #right
+                    xz0 = xz1
+                    j += 1
+                else:
+                    dl = Sz #up or down
+                    xz0 = xz2
+                    i = itm
+                
+                dstot += dl                                
+                stp += 1
+                opac = ph.KPE
+                            
+#                 print "here", dat.Rsc, dat.Dsc,  dat.ro[i,phToSHow, j],  opac, dl,i,j                
+                                
+                dtau = dat.Rsc*dat.Dsc* dat.ro[i,phToSHow,j]* opac * dl
+            
+                dcol_dns = nm.fabs( dat.ro[i, phToSHow, j]*dat.n0* dat.Rsc*dl)
+                
+                tau += dtau                
+                col_dns += dcol_dns
+#                 print i, j, stp
+                
+                if  ( i <= dat.i_s or i >= dat.ie or j <= dat.js or j >= dat.je-1):
+                    break
+                if  i==ic and j ==jc :
+                    break
+        
+    
+        return(tau, col_dns)
+        
+def transmisionFunctionsAngleGrid(dat, printResults=False):
+    Nth = 100         
+    
+    Xsrc = array([0, 0])  
+    
+#     res = dat.x[dat.js]/dat.z[dat.ie]
+#     thmax = nm.pi / 2
+    thmin = nm.arctan2(dat.x[dat.js], dat.z[dat.ie]-Xsrc[0] )
+    
+    thmax =nm.arctan2(dat.x[dat.js], dat.z[dat.i_s]-Xsrc[0])
+        
+    angle = linspace(thmin, thmax, Nth) 
+    
+#     print angle, range(1,Nth)
+#     time.sleep(3)
+    
+    tauTheta = zeros(Nth)
+    colDens = zeros(Nth)
+                                                 
+    for k,th in zip(range(1,Nth), angle):        
+#         th = nm.pi/2              
+#         print k,th
+#         time.sleep(3)
+        tauTheta[k], colDens[k] = cellTrace(dat, th, Xsrc_x_z = [Xsrc[1], Xsrc[0]], phToSHow =phToSHow)        
+#         print("tau=", tauTheta[k], "colDens=", colDens[k], th, Nth)
+        
+#         exit(); time.sleep(3)
+        
+        
+    if printResults:
+        fig  = plt.figure()
+        ax = fig.add_subplot(111)
+        funcToPlot =  log10(colDens)
+        funcToPlot =  tauTheta
+        ax.plot(angle*180./nm.pi, funcToPlot)
+        show()
+    
+    return(tauTheta,colDens, angle)
+    
+
+
+def iteratorOverDataDirectoriesOverHDfFiles(dirFileToReadBase,
+                                        locdirList2, funcToCalculate, fileToSavePrefix):
+                                            
+    mod={}
+    maxNumFile = 2
+
+    dat =ath.athDataModel()   
+    
+    for dirName, i in zip(locdirList2, range(size(locdirList2))):
+        
+        mod.update({ locdirList2[i]:{'ang':[], 'tau':[], 'cdens':[] }})
+        
+        simTime = []
+        
+        dirToRead = dirFileToReadBase + dirName
+        
+#         print "dirToRead=",  dirToRead
+                        
+        nFile = 0.
+        try:
+            dat.loadSimulationParam(dirToRead + 'athinput.torus9_hydro_2D', print_res=True)   
+        except IOError:
+            print('cannot load param data file')
+            exit()
+
+        filelist =  glob.glob(os.path.join(dirToRead, 'mhdXwind*.bin') ) 
+       
+        for fileInDir in sorted(filelist):             
+                print("fileInDir=",fileInDir)
+                try:  
+                  dat.loadDataFromBinFiles(fileInDir, dat,printDetail=False)                
+                  print("file to open:", dirToRead + fileInDir)
+                except:                   
+                   print("skip file:", fileToOpen)
+                   break  
+                
+                tau, cdens, ang  = funcToCalculate(dat, printResults=False)
+                
+#                 print tau, cdens, ang
+                                              
+                
+                mod[locdirList2[i]]['tau'].append(tau.tolist())
+                mod[locdirList2[i]]['cdens'].append(cdens.tolist())
+                                               
+                if not mod[ locdirList2[i]]['ang']  :
+                    mod[locdirList2[i]]['ang'].append(ang.tolist())
+            
+                simTime.append(nFile)                                                         
+                nFile += 1
+                if (nFile > maxNumFile):
+                    print "maxNumFile reached"
+                    break
+                
+        
+        mod[ locdirList2[i] ].update( {'par': dat.par  })  
+              
+        mod[ locdirList2[i] ]['par'].update( {'dt_bin': dat.dt_bin })
+       
+    return(mod)
+        
+        
+# ----------------------------------------------------------------------------                
+#                                     MAIN            
+# ----------------------------------------------------------------------------
+dat =ath.athDataModel()
+
+if socket.gethostname()=='atorus':
+    # locdirList = ['/local/data/atorus1/dora/PROJECTS/AthenaWind_cln2/']
+
+    # locdir = locdirList[0]   
+    # dirToRead=locdir+'tst/cylindrical/'
+    # print(dirToRead)
+    # dat.loadSimulationParam(dirToRead + 'athinput.torus9_hydro_2D', print_res=True)
+   
+    # dirToRead=locdir+'bin/'
+    # print(dirToRead)
+
+    locdirList2 = [ '/SolovievSep201615_256x8x256_L0.n10e10/']
+    locdirList2 = ['/SolovievSep201614_128x8x128_L0.n10e8/']
+
+    # dirFileToReadBase ='/local/data/atorus1/dora/PROJECTS/AthenaWind'
+
+    dirFileToReadBase = '/local/data/atorus2/dora/SOL_Jan201707_256x8x256_L0.5n10e8/'
+
+    dataDir = ''
+    locdirList2 = ['/bin/']
+    locdirList2 = ['']
+
+    put_out= '/local/data/atorus1/dora/PROJECTS/SCRIPTS/T9'
+    put_FIG= '/local/data/atorus1/dora/PROJECTS/SCRIPTS/T9'
+
+else:
+     locdirList = [ 'SolovievSep201615_256x8x256_L0.n10e10/']
+     locdirList = [ 'runDec201608_256x8x256_L0.5n10e8/']
+     put_out= '/Users/dora/WORK/ECLIPSE_SPACE/torus9'
+     put_FIG = '/Users/dora/Documents/TEX/torus9/'
+     locdir = locdirList[0]
+     dirFileToReadBase = os.getcwd()
+     dataDir = '/DATA/'
+     dirFileToReadBase = os.getcwd()
+     dataDir = '/DATA'
+     dirToRead = dirFileToReadBase + dataDir+locdirList[0]
+     dat.loadSimulationParam(dirToRead + 'athinput.torus9_hydro_2D', print_res=True)
+            
+whatToDo = 'calculTauAndColDens'
+
+#whatToDo = 'processTauAndColDensFromFile'
+
+
+
+
+
+
+
+
+if whatToDo == 'calculTauAndColDens':
+
+        print(dirFileToReadBase + dataDir, locdirList2)
 
         multiDat=iteratorOverDataDirectoriesOverHDfFiles(dirFileToReadBase + dataDir, locdirList2,
                                             transmisionFunctionsAngleGrid, fileToSavePrefix=False)
@@ -288,7 +928,7 @@ if whatToDo == 'calculTauAndColDens':
 #         for i_type_mod in xrange(len(locdirList2)):
             
         fileToSavePrefix ='multiDat_TauColDensVsAngle.p'        
-        filename = dirFileToReadBase+dataDir +'/'+ fileToSavePrefix                    
+        filename = dirFileToReadBase+dataDir + fileToSavePrefix                    
         pickle.dump(multiDat, open(filename, "wb"))                     
         print("saved to  ", filename)        
         
