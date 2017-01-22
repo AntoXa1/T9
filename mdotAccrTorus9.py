@@ -222,8 +222,7 @@ if plotMdotFromTxtFile:
         
         mdotAvr=mdotAccr
         ax = f.add_subplot(1,2,i+1)
-#         if i==0:
-        
+#         if i==0:        
 #         if i==1:
 #             ax = f.add_subplot(122)
         y1 = mdotAvr
