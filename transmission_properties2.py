@@ -1,7 +1,7 @@
-##!/local/data/atorus1/dora/Compilers/epd-7.3-1-rh5-x86_64(1)/bin/python
-##!/Library/Frameworks/Python.framework/Versions/Current/bin/python
+#!/local/data/atorus1/dora/Compilers/epd-7.3-1-rh5-x86_64(1)/bin/python
 
-#!/Users/dora/Library/Enthought/Canopy_32bit/User/bin/python
+##!/Library/Frameworks/Python.framework/Versions/Current/bin/python
+##!/Users/dora/Library/Enthought/Canopy_32bit/User/bin/python
 
 import scipy
 from  numpy import ndarray, zeros, array, size, sqrt, meshgrid, flipud, floor, where, amin, argmin,int
@@ -221,7 +221,11 @@ def iteratorOverDataDirectoriesOverHDfFiles(basePath, dataDir,
         
         nFile = 0.
         dat.loadSimulationParam(simParamFileDir + 'athinput.torus9_hydro_2D', print_res=True)   
-        
+
+        scale = 1.
+        dat.n0 /= scale
+        dat.Dsc/=scale
+
         filelist = glob.glob(os.path.join(dataDir, 'mhdXwind*.bin') )
         
         for fileInDir in sorted(filelist):
@@ -232,8 +236,10 @@ def iteratorOverDataDirectoriesOverHDfFiles(basePath, dataDir,
                  print("skip file:", fileInDir)  
                  break
 
-               torMass = dat.torusMass(dat)
-               exit()
+             #  torMass = dat.torusMass(dat)
+               
+               # print(torMass/MSOL)
+               # exit()
                
                
                
@@ -398,14 +404,14 @@ def plotOnePane(ax):
 
 whatToDo = 'calculTauAndColDens'
 
-# whatToDo = 'processTauAndColDensFromFile'
+#whatToDo = 'processTauAndColDensFromFile'
 
 
 dat =ath.athDataModel()
 
 if socket.gethostname()=='atorus':
 
-    # locDirList = ['/local/data/atorus2/dora/HW_Jan201707_256x8x256_L0.5n10e8/']
+ #   locDirList = ['/local/data/atorus2/dora/HW_Jan201707_256x8x256_L0.5n10e8']
 
     locDirList = ['/local/data/atorus1/dora/PROJECTS/AthenaWind']
     basePath = locDirList[0]
@@ -417,8 +423,16 @@ if socket.gethostname()=='atorus':
 #      print(simParamFileDir); exit()
 
     else:
-      dataDir = ''
+      dataDir = basePath+'/'
       locdirList2 = ['']
+      simParamFileDir = basePath+'/'
+
+    if  whatToDo == 'processTauAndColDensFromFile':       
+        
+        pathToPickledFile = dataDir
+        fileNameList = ['multiDat_TauColDensVsAngle.p', 'multiDat_TauColDensVsAngle.p']
+        locdirList2 = ['']
+
 
     put_out= '/local/data/atorus1/dora/PROJECTS/SCRIPTS/T9'
     put_FIG= '/local/data/atorus1/dora/PROJECTS/SCRIPTS/T9'
@@ -477,7 +491,7 @@ if whatToDo =='processTauAndColDensFromFile':
     
     fileName = fileNameList[0]
     filename = pathToPickledFile + fileName    
-#     fig = plt.figure(1, (10, 4))    
+
     fig, ax = plt.subplots(1, 2, sharey=True)    
     
     for filename, np in zip(fileNameList, range(len(fileNameList))):                                            

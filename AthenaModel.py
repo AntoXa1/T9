@@ -227,25 +227,32 @@ class athDataModel:
     
     m=0.
     m2 = 0
-    Dsc2 = 5e-5*dat.Dsc #background
+    roCut = 5e-5  #background
     
     
 #     Dsc2 =  cutOffDens 
     
-    for i in range(1, dat.Nz):        
-        for j in range(1, dat.Nx):
-        
+    phToSHow=1
+    for i in range(1, dat.nz):        
+        for j in range(1, dat.nx):
+            
+            
+
             r =  dat.x[i]            
             dr = (dat.x[i] - dat.x[i-1])            
             dh = (dat.z[i] - dat.z[i-1])             
             
             dv = 2*pi*r*dr*dh                        
-            dm2 = dat.Rsc**3* Dsc2 *dv* dat.dd[i,j]            
-            dm = dat.Rsc**3* dat.Dsc *dv* dat.dd[i,j]
+            dm2 = dat.Rsc**3* roCut *dv* dat.ro[i,phToSHow,j]   
+         
+            dm = dat.Rsc**3* dat.Dsc *dv* dat.ro[i,phToSHow,j]
             
 #             print(dat.Nz,dat.Nx)
 #             print (r, dr, dh, dv, dm, dat.Dsc)
             
+            if dat.ro[i,phToSHow,j] < roCut: 
+              dm = 0
+              dm2=0.
             m+=dm
             m2+=dm2
     
