@@ -221,7 +221,37 @@ class athDataModel:
          mdotTot =-nm.trapz(mdot, self.z*self.Rsc)         
           
          return(mdotTot)
-  
+    
+  def torusMass(self, dat):
+    from math import pi
+    
+    m=0.
+    m2 = 0
+    Dsc2 = 5e-5*dat.Dsc #background
+    
+    
+#     Dsc2 =  cutOffDens 
+    
+    for i in range(1, dat.Nz):        
+        for j in range(1, dat.Nx):
+        
+            r =  dat.x[i]            
+            dr = (dat.x[i] - dat.x[i-1])            
+            dh = (dat.z[i] - dat.z[i-1])             
+            
+            dv = 2*pi*r*dr*dh                        
+            dm2 = dat.Rsc**3* Dsc2 *dv* dat.dd[i,j]            
+            dm = dat.Rsc**3* dat.Dsc *dv* dat.dd[i,j]
+            
+#             print(dat.Nz,dat.Nx)
+#             print (r, dr, dh, dv, dm, dat.Dsc)
+            
+            m+=dm
+            m2+=dm2
+    
+    print('torusMass=', m)
+    return (m)
+
   def massLossRate(self, dat, phToSHow = 1):
 
      #inner boundary

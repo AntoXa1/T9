@@ -1,4 +1,7 @@
-#!/local/data/atorus1/dora/Compilers/epd-7.3-1-rh5-x86_64(1)/bin/python
+##!/local/data/atorus1/dora/Compilers/epd-7.3-1-rh5-x86_64(1)/bin/python
+##!/Library/Frameworks/Python.framework/Versions/Current/bin/python
+
+#!/Users/dora/Library/Enthought/Canopy_32bit/User/bin/python
 
 import scipy
 from  numpy import ndarray, zeros, array, size, sqrt, meshgrid, flipud, floor, where, amin, argmin,int
@@ -14,7 +17,7 @@ import time
 import cPickle as pickle
 from matplotlib import colors
 import socket
-
+from mpl_toolkits.axes_grid1 import AxesGrid, ImageGrid
 
 from scipy import trapz
 from matplotlib import pyplot as plt
@@ -41,12 +44,12 @@ def plotFormat(ax1,ax2=None,ax3=None,im=None):
 #     for ylabel in ax.get_yticklabels():
 #         ylabel.set_fontsize(fontsize_x)
 #     
-    ax1.set_xlabel('Inclination angle', fontsize=fz)
-    ax1.set_ylabel('$\log(N_{col})$', fontsize=fz)
+#     ax1.set_xlabel('Inclination angle', fontsize=fz)
+    ax[0].set_ylabel('$\log(N_{col})$', fontsize=fz)
 #     for xlabel in ax1.get_xticklabels():
 #         xlabel.set_fontsize(fontsize_x)
 # 
-    ax1.set_title('Column density $(cm^{-2})$', fontsize =fz)
+#     ax1.set_title('Column density $(cm^{-2})$', fontsize =fz)
 
     fig.subplots_adjust(wspace=0.2)       
 #     plt.setp([a.get_yticklabels() for a in fig.axes[1:] ], visible=False)
@@ -226,9 +229,14 @@ def iteratorOverDataDirectoriesOverHDfFiles(basePath, dataDir,
                   dat.loadDataFromBinFiles(fileInDir, dat, printDetail=False)                      
                   print("file to open:", fileInDir)
                except:
-                 print("skip file:", fileToOpen)  
+                 print("skip file:", fileInDir)  
                  break
 
+               torMass = dat.torusMass(dat)
+               exit()
+               
+               
+               
                tau, cdens, ang  = funcToCalculate(dat, printResults=False)
                 
 #                 print tau, cdens, ang
@@ -243,7 +251,7 @@ def iteratorOverDataDirectoriesOverHDfFiles(basePath, dataDir,
                simTime.append(nFile)                                                         
                nFile+=1
                if (nFile > maxNumFile):
-                    print "maxNumFile reached"
+                    print ("maxNumFile reached")
                     break
                 
         
@@ -253,98 +261,21 @@ def iteratorOverDataDirectoriesOverHDfFiles(basePath, dataDir,
        
     return(mod)
         
-        
-        
-# ----------------------------------------------------------------------------                
-#                                    the MAIN            
-# ----------------------------------------------------------------------------
-dat =ath.athDataModel()
 
-if socket.gethostname()=='atorus':
+def plotOnePane(ax):
 
-    # locDirList = ['/local/data/atorus2/dora/HW_Jan201707_256x8x256_L0.5n10e8/']
-
-    locDirList = ['/local/data/atorus1/dora/PROJECTS/AthenaWind']
-    basePath = locDirList[0]
-
-    if os.path.isdir( basePath +'/bin' ):
-      dataDir = basePath+'/bin/'
-      locdirList2 = ['']
-      simParamFileDir = basePath+'/tst/cylindrical/'
-#      print(simParamFileDir); exit()
-
-    else:
-      dataDir = ''
-      locdirList2 = ['']
-
-    put_out= '/local/data/atorus1/dora/PROJECTS/SCRIPTS/T9'
-    put_FIG= '/local/data/atorus1/dora/PROJECTS/SCRIPTS/T9'
-else:
-     locdirList = [ 'SolovievSep201615_256x8x256_L0.n10e10/']
-     locdirList = [ 'runDec201608_256x8x256_L0.5n10e8/']
-     put_out= '/Users/dora/WORK/ECLIPSE_SPACE/torus9'
-     put_FIG = '/Users/dora/Documents/TEX/torus9/'
-     locdir = locdirList[0]
-     dirFileToReadBase = os.getcwd()
-     dataDir = '/DATA/'
-     dirFileToReadBase = os.getcwd()
-     dataDir = '/DATA'
-     dirToRead = dirFileToReadBase + dataDir+locdirList[0]
-     dat.loadSimulationParam(dirToRead + 'athinput.torus9_hydro_2D', print_res=True)
-            
-whatToDo = 'calculTauAndColDens'
-
-#whatToDo = 'processTauAndColDensFromFile'
-
-
-if whatToDo == 'calculTauAndColDens':
-
-        print('files =', basePath, dataDir,simParamFileDir)
-
-
-
-        multiDat=iteratorOverDataDirectoriesOverHDfFiles(basePath, dataDir,simParamFileDir,locdirList2,
-                                            transmisionFunctionsAngleGrid, fileToSavePrefix=False)
-
-#         for i_type_mod in xrange(len(locdirList2)):
-            
-        fileToSavePrefix ='multiDat_TauColDensVsAngle.p'        
-        filename = dataDir + fileToSavePrefix                    
-
-        pickle.dump(multiDat, open(filename, "wb"))                     
-
- 
-        # try:
-        #     nm.savetxt(filename,  list(multiDat))
-        #     print("saving to ",  filename)
-        # except IOError:
-        #     print('cannot save to', filename)
-         
-        multiDat=[]
-        
-        print("calculTauAndColDens ..done"); 
-        exit()
-
-
-if whatToDo =='processTauAndColDensFromFile':
-    
-    print("3")
-    exit();
-
-    filename = dirFileToReadBase+dataDir+'/'+ 'multiDat_TauColDensVsAngle.p'
-    
-    mdat = pickle.load( open( filename, "rb" ) )                             
     Nd = len(locdirList2)    
         
     Na = len(mdat[locdirList2[0]] ['ang'][0])                
     Ny = len(mdat[locdirList2[0]] ['tau'])
+
     Nm=0
     distribFun1 = zeros(Na) 
     distribFun2 = zeros(Na)
     col_max=0
     col_min = 1e30
     
-    fig  = plt.figure()
+    
     lineType = ['-', '--', '-o', '-*']
     color = ['k', 'b', 'g', 'r']
     markerWidth = [2,2,2,2]
@@ -405,13 +336,13 @@ if whatToDo =='processTauAndColDensFromFile':
         loc1='lower center'                        
         simTimeArr =nm.array(simTime)
                      
-        print len(Ncol_scat)
+        print (len(Ncol_scat))
 #         eps = 1.e-2
 #         Ncol_scat[Ncol_scat<eps]=eps
         
         
         if i_types==0:
-            ax1 = fig.add_subplot(111)
+            
             
 #             color = [str(y/100. ) for y in simTimeArr]            
 #             color = matplotlib.cm.rainbow(color)                        
@@ -424,22 +355,21 @@ if whatToDo =='processTauAndColDensFromFile':
 #             plt.scatter(x, y, c=t)
 #             plt.show()               
             
-            print nm.array(ang_scat)
+            print (nm.array(ang_scat))
 
-            x1 =(nm.array(ang_scat))*180./nm.pi
+            x1 =(nm.array(ang_scat))*180./nm.pi - 0
             
             y1= log10( Ncol_scat )
             
 #             print  len(x),len(y), len(simTime);exit()
             
             cm = plt.cm.get_cmap('RdYlBu')
-            ax1.scatter( x1, y1, cmap=cm)
-            plt.xlim((0,185))
+            ax.scatter( x1, y1, cmap=cm)
+            
+#             .xlim((0,185)) 
             
 #             fig.colorbar(sc)
-#             ax1.scatter( x,y, c=simTime)
- 
-                    
+#             ax1.scatter( x,y, c=simTime)                     
 # #             
 #         ax1 = fig.add_subplot(131)      
 #         ax1.plot(x*180./nm.pi, log10(distribFun1),  lineType[i_types], color=color[i_types], linewidth=markerWidth[i_types]        
@@ -461,12 +391,107 @@ if whatToDo =='processTauAndColDensFromFile':
             ax3 = fig.add_subplot(144,sharey=ax1)
             ax3.scatter((nm.array(ang_scat)-thmax)*180./nm.pi, log10(Ncol_scat), color=color[i_types])
 
+        
+# ----------------------------------------------------------------------------                
+#                                    the MAIN            
+# ----------------------------------------------------------------------------
+
+whatToDo = 'calculTauAndColDens'
+
+# whatToDo = 'processTauAndColDensFromFile'
+
+
+dat =ath.athDataModel()
+
+if socket.gethostname()=='atorus':
+
+    # locDirList = ['/local/data/atorus2/dora/HW_Jan201707_256x8x256_L0.5n10e8/']
+
+    locDirList = ['/local/data/atorus1/dora/PROJECTS/AthenaWind']
+    basePath = locDirList[0]
+
+    if os.path.isdir( basePath +'/bin' ):
+      dataDir = basePath+'/bin/'
+      locdirList2 = ['']
+      simParamFileDir = basePath+'/tst/cylindrical/'
+#      print(simParamFileDir); exit()
+
+    else:
+      dataDir = ''
+      locdirList2 = ['']
+
+    put_out= '/local/data/atorus1/dora/PROJECTS/SCRIPTS/T9'
+    put_FIG= '/local/data/atorus1/dora/PROJECTS/SCRIPTS/T9'
+   
+else: 
+    if whatToDo == 'calculTauAndColDens' :
+         locdirList = [ 'SolovievSep201615_256x8x256_L0.n10e10/']
+         locdirList = [ 'runDec201608_256x8x256_L0.5n10e8/']
+         put_out= '/Users/dora/WORK/ECLIPSE_SPACE/torus9'
+         put_FIG = '/Users/dora/Documents/TEX/torus9/'
+         locdir = locdirList[0]
+         dirFileToReadBase = os.getcwd()
+         dataDir = '/DATA/'
+         dirFileToReadBase = os.getcwd()
+         dataDir = '/DATA'
+         dirToRead = dirFileToReadBase + dataDir+locdirList[0]
+         dat.loadSimulationParam(dirToRead + 'athinput.torus9_hydro_2D', print_res=True)
     
-    plotFormat(ax1)
+    elif whatToDo == 'processTauAndColDensFromFile':       
+        pathToPickledFile = '/Users/dora/WORK/ECLIPSE_SPACE/torus9/'
+        fileNameList = ['SOL_multiDat_TauColDensVsAngle.p', 'HW_multiDat_TauColDensVsAngle.p']
+        locdirList2 = ['']
+        put_FIG = '/Users/dora/Documents/TEX/torus9/'
+
+
+if whatToDo == 'calculTauAndColDens':
+
+        print('files =', basePath, dataDir,simParamFileDir)
+
+
+
+        multiDat=iteratorOverDataDirectoriesOverHDfFiles(basePath, dataDir,simParamFileDir,locdirList2,
+                                            transmisionFunctionsAngleGrid, fileToSavePrefix=False)
+
+#         for i_type_mod in xrange(len(locdirList2)):
+            
+        fileToSavePrefix ='multiDat_TauColDensVsAngle.p'        
+        filename = dataDir + fileToSavePrefix                    
+
+        pickle.dump(multiDat, open(filename, "wb"))                     
+
+ 
+        # try:
+        #     nm.savetxt(filename,  list(multiDat))
+        #     print("saving to ",  filename)
+        # except IOError:
+        #     print('cannot save to', filename)
+         
+        multiDat=[]
+        
+        print("calculTauAndColDens ..done"); 
+        exit()
+
+
+if whatToDo =='processTauAndColDensFromFile':
+    
+    fileName = fileNameList[0]
+    filename = pathToPickledFile + fileName    
+#     fig = plt.figure(1, (10, 4))    
+    fig, ax = plt.subplots(1, 2, sharey=True)    
+    
+    for filename, np in zip(fileNameList, range(len(fileNameList))):                                            
+        mdat = pickle.load( open( filename, "rb" ) )                                             
+        plotOnePane(ax[np])
+    
+    plotFormat(ax[np])
+    fig.suptitle('Column density $(cm^{-2})$', y=0.95, fontsize=16)
+    
+    fig.text(0.5, 0.02, 'Inclination angle', ha='center', fontsize=16)
     
     put_out= '/Users/dora/Documents/TEX/torus9/'    
     fileNameToSave = put_out+'colDensInclAngleAllModels'
-    fig.savefig(fileNameToSave + ".pdf", format='pdf')
+#     fig.savefig(fileNameToSave + ".pdf", format='pdf')
 
     show()
     
