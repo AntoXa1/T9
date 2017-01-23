@@ -268,7 +268,7 @@ def iteratorOverDataDirectoriesOverHDfFiles(basePath, dataDir,
     return(mod)
         
 
-def plotOnePane(ax):
+def plotOnePane(ax, scale):
 
     Nd = len(locdirList2)    
         
@@ -327,6 +327,8 @@ def plotOnePane(ax):
                 
                 angl = mdat[locdirList2[i_types]] ['ang'][0][k_ang]                                                    
                 col= mdat[locdirList2[i_types]] ['cdens'][j_y][k_ang]
+                
+                col /= scale
                 
                 Ncol_scat.append(col)
                 ang_scat.append(angl)
@@ -404,7 +406,7 @@ def plotOnePane(ax):
 
 whatToDo = 'calculTauAndColDens'
 
-#whatToDo = 'processTauAndColDensFromFile'
+whatToDo = 'processTauAndColDensFromFile'
 
 
 dat =ath.athDataModel()
@@ -495,8 +497,14 @@ if whatToDo =='processTauAndColDensFromFile':
     fig, ax = plt.subplots(1, 2, sharey=True)    
     
     for filename, np in zip(fileNameList, range(len(fileNameList))):                                            
-        mdat = pickle.load( open( filename, "rb" ) )                                             
-        plotOnePane(ax[np])
+        mdat = pickle.load( open( filename, "rb" ) )
+        
+        if np==0: 
+            scale = 1
+        else:
+            scale =12
+                                                     
+        plotOnePane(ax[np],scale)
     
     plotFormat(ax[np])
     fig.suptitle('Column density $(cm^{-2})$', y=0.95, fontsize=16)
