@@ -8,7 +8,9 @@ import socket
 
 from docutils.parsers.rst.directives.misc import Replace
 from matplotlib import pyplot as plt
+
 from mpl_toolkits.axes_grid1 import AxesGrid, ImageGrid
+
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from mpl_toolkits.mplot3d import Axes3D
 from numpy import ndarray, zeros, array, size, meshgrid, flipud, floor, where, amin, argmin, int
@@ -75,30 +77,17 @@ what2Do = None
 strmPlot = False
 
 if socket.gethostname()=='atorus':
+     putToDataDirs= '/local/data/atorus1/dora/PROJECTS/'
 
-
-
-     putToDataDirs= ['/local/data/atorus2/dora/','/local/data/atorus2/dora/']
-
-#     locdirList = [ 'SOL_Jan201707_256x8x256_L0.5n10e8/',  'HW_Jan201707_256x8x256_L0.5n10e8/']
-
-     locdirList = [ 'SOL_Dec201627_256x8x256_L0.5n10e10/' ,  'HW_Jan201707_256x8x256_L0.5n10e8/']
-     
-
-#     paramFile =  [  putToDataDirs + x.replace('/bin',"") +'/tst/cylindrical' for  x in locdirList ]
-
-
-     paramFile = [ A + B  for A,B in zip(putToDataDirs,locdirList)]
-
-
-#     print paramFile; exit()
-
-
+     locdirList = [ 'AthenaWind_cln3/bin/', 'AthenaWind_cln2/bin/']
+     paramFile =  [  putToDataDirs + x.replace('/bin',"") +'/tst/cylindrical' for  x in locdirList ]
+     print paramFile;
      put_out= '/local/data/atorus1/dora/PROJECTS/SCRIPTS/T9/'
      put_FIG = '/local/data/atorus1/dora/PROJECTS/SCRIPTS/T9/'
 
-     dataFileList = [['mhdXwind.0150.bin', 'mhdXwind.0350.bin', 'mhdXwind.0595.bin'], \
-                                ['mhdXwind.0150.bin', 'mhdXwind.0350.bin', 'mhdXwind.0595.bin']]
+     filelist = ['mhdXwind.0150.bin', 'mhdXwind.0350.bin', 'mhdXwind.0595.bin']     
+     dataFileList = [filelist, filelist]
+
 else:
      putToDataDirs= '/Users/dora/WORK/ECLIPSE_SPACE/torus9/DATA/DAT_for_figures/' 
      locdirList = [ 'SL/', 'HW/']
@@ -112,37 +101,22 @@ else:
 numRaw=  len(dataFileList[0][:])
 
 
-  
-fig = plt.figure(1, (10, 7))  
-grid = AxesGrid(fig, 111, # similar to subplot(132)
-                    nrows_ncols = (numRaw, 2),
-                    axes_pad = 0.0,
-#                     axes_pad=(0.45, 0.35),
-                    share_all=True,
-                    label_mode = "L",
-                    add_all=True,       
-                    cbar_pad = 0.,             
-                    cbar_location = "right",
-                    cbar_mode="single", #"each",
-                    direction = "column",
-                    )
-i_grid =0
+f, ax = plt.subplots()
+
+
+
 timeTeX=[]
+i_grid =0
 
 for i_dirs in range(len(locdirList)):    
-
-     dirFileToReadBase = putToDataDirs[i_dirs] + locdirList[i_dirs]
-
+     dirFileToReadBase = putToDataDirs + locdirList[i_dirs]
      dat = AthenaModel.athDataModel()
-
      dat.loadSimulationParam(paramFile[i_dirs] + '/athinput.torus9_hydro_2D', print_res=True)
      
      
      for fileToOpen in dataFileList[i_dirs] [:]:
 #         print(fileToOpen,timeNumeric,arrayTimeTeX)          
-
         dat.loadDataFromBinFiles(dirFileToReadBase +fileToOpen, dat, printDetail = True)
-
         print("MBH=", dat.Mbh,   'R0=', dat.Rsc,  'n0=', dat.n0,
                "t_0=", dat.tsc/YR, 'YRs' )
         
@@ -196,24 +170,32 @@ for i_dirs in range(len(locdirList)):
 #         grid[i_grid].streamplot(x1, x3, mx, mz, color='r', linewidth=2)                   
         vatToShow2D=Entr
 #         vatToShow2D= Br
-
+       
         ro = dat.ro[ist:ie, phToSHow, jst:je]* dat.Dsc
         Tgas = Pgas*dat.Esc/(ro*RGAS)
         vatToShow2D = log10(Tgas)
-        
+
         stp=17
+        stp = 5
+        scale = 2
 
         # qp1 = grid[i_grid].quiver(X[ist:ie:stp, jst:je:stp], Z[ist:ie:stp, jst:je:stp], (vx[ist:ie:stp, jst:je:stp]), 
-        #                 (vz[ist:ie:stp, jst:je:stp]), width=0.008, scale=2,                            
+        #                 (vz[ist:ie:stp, jst:je:stp]), width=0.008, scale=scale,                            
         # pivot='mid', color='black', 
         # units='x' , headwidth =5, headlength =7,
         # linewidths=(0.5,), edgecolors=('black'))
-        
-        im = grid[i_grid].imshow(vatToShow2D , interpolation='bilinear',cmap=cm.jet, 
-                        extent=[xmin, xmx, zmin, zmx] )    
 
-        grid[i_grid].set_xlabel ("R(pc)", fontsize=22)
-        grid[i_grid].set_ylabel ("z(pc)", fontsize=22)                 
+        im= ax.imshow(vatToShow2D , interpolation='bilinear',cmap=cm.jet, 
+                         extent=[xmin, xmx, zmin, zmx] ) 
+            #    grid[i_grid].streamplot(x1, x3, mx, mz, color='r', linewidth=2)    
+
+        plt.streamplot(x1, x3, mx, mz, color='r', linewidth=2)    
+
+        # im = grid[i_grid].imshow(vatToShow2D , interpolation='bilinear',cmap=cm.jet, 
+        #                 extent=[xmin, xmx, zmin, zmx] )    
+
+        # grid[i_grid].set_xlabel ("R(pc)", fontsize=22)
+        # grid[i_grid].set_ylabel ("z(pc)", fontsize=22)                 
         
         
         i_grid+=1
@@ -221,19 +203,20 @@ for i_dirs in range(len(locdirList)):
         timeTeX.append(roundThenStringToLatexFormat(timeNumeric))         
 
 
-fig.suptitle(r' ${Entropy}$ ',  y=0.95, fontsize=16)        
-grid.cbar_axes[0].colorbar(im)
-for cax in grid.cbar_axes: 
-    cax.toggle_label(True)
 
-for ax, im_title in zip(grid, timeTeX):
-        t = add_inner_title(ax, im_title, loc=2)
-        t.patch.set_ec("none")
-        t.patch.set_alpha(0.5)
+# fig.suptitle(r' ${Entropy}$ ',  y=0.95, fontsize=16)        
+# grid.cbar_axes[0].colorbar(im)
+# for cax in grid.cbar_axes: 
+#     cax.toggle_label(True)
+
+# for ax, im_title in zip(grid, timeTeX):
+#         t = add_inner_title(ax, im_title, loc=2)
+#         t.patch.set_ec("none")
+#         t.patch.set_alpha(0.5)
 
 
-fileNameToSave = 'entrVsTimeSL_HW_G0_5_6panel'
-fig.savefig(put_FIG +fileNameToSave + ".pdf", format='pdf')
+# fileNameToSave = 'entrVsTimeSL_HW_G0_5_6panel'
+# fig.savefig(put_FIG +fileNameToSave + ".pdf", format='pdf')
         
 show()
 exit()

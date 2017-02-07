@@ -83,7 +83,7 @@ if socket.gethostname()=='atorus':
      put_FIG = '/local/data/atorus1/dora/PROJECTS/SCRIPTS/T9/'
      
      filelist = ['mhdXwind.0150.bin', 'mhdXwind.0350.bin', 'mhdXwind.0595.bin']
-     filelist = ['mhdXwind.0001.bin', 'mhdXwind.0060.bin', 'mhdXwind.0099.bin']
+
      
      dataFileList = [filelist, filelist]
 

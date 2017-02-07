@@ -406,7 +406,7 @@ def plotOnePane(ax, scale):
 
 whatToDo = 'calculTauAndColDens'
 
-whatToDo = 'processTauAndColDensFromFile'
+#whatToDo = 'processTauAndColDensFromFile'
 
 
 dat =ath.athDataModel()
