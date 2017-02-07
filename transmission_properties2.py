@@ -408,7 +408,7 @@ def plotOnePane(ax, scale,Ncol_min, Ncol_max):
 
 whatToDo = 'calculTauAndColDens'
 
-whatToDo = 'processTauAndColDensFromFile'
+#whatToDo = 'processTauAndColDensFromFile'
 
 
 dat =ath.athDataModel()

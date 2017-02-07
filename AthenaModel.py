@@ -136,7 +136,7 @@ class athDataModel:
 #             
 #             mass = self.Mbh*MSOL
 #             
-#             self.Esc=self.Dsc*G*mass/self.Rsc
+        self.Esc=self.Dsc*G*mass/self.Rsc
 #             self.Usc = sqrt( G*mass / self.Rsc )
    
         if print_res:
@@ -153,7 +153,8 @@ class athDataModel:
     except Exception as e:
         print(str(e))
     
-    self.Usc = nm.sqrt(G*self.Mbh/self.Rsc)            
+    self.Usc = nm.sqrt(G*self.Mbh/self.Rsc)  
+    self.Esc = self.Dsc*self.Usc**2
     self.tsc=self.Rsc/self.Usc
 #     print(self.tsc/YR)
     self.par= {'Dsc': self.Dsc, 'tsc':self.tsc,  'Usc':self.Usc, 'Mbh':self.Mbh,  'Usc' :self.Usc,
@@ -235,18 +236,12 @@ class athDataModel:
     phToSHow=1
     for i in range(1, dat.nz):        
         for j in range(1, dat.nx):
-            
-            
-
             r =  dat.x[i]            
             dr = (dat.x[i] - dat.x[i-1])            
             dh = (dat.z[i] - dat.z[i-1])             
-            
             dv = 2*pi*r*dr*dh                        
             dm2 = dat.Rsc**3* roCut *dv* dat.ro[i,phToSHow,j]   
-         
             dm = dat.Rsc**3* dat.Dsc *dv* dat.ro[i,phToSHow,j]
-            
 #             print(dat.Nz,dat.Nx)
 #             print (r, dr, dh, dv, dm, dat.Dsc)
             

@@ -216,12 +216,14 @@ if plotMdotFromTxtFile:
         except IOError:
             print('cannot load data from',filename)
             exit()
-        
+        if i ==0:
+            scale =12
+        else:
+            scale =1
         time = timeMdot[:,0]            
-        mdotAccr = timeMdot[:,1]
-        mdotWin = timeMdot[:,2]
-        
-        mdotAvr=mdotAccr
+        mdotAccr = timeMdot[:,1]/scale
+        mdotWin = timeMdot[:,2]/scale       
+        mdotAvr=mdotAccr/scale
         ax = f.add_subplot(1,2,i+1)
 #         if i==0:        
 #         if i==1:
